@@ -1,0 +1,14 @@
+#!/bin/bash
+# Notify at boot if this machine has drifted from the omarchy-config repo.
+# Silent when in sync — it only ever speaks up when there's something to do.
+set -u
+
+REPO="$HOME/Work/omarchy-config"
+[[ -x $REPO/scripts/check.sh ]] || exit 0
+
+if ! "$REPO/scripts/check.sh" --quiet >/dev/null 2>&1; then
+  omarchy-notification-send -g 󰊢 "omarchy-config has drift" \
+    "Config, packages, or plugins changed since your last commit." \
+    --exec "omarchy-launch-floating-terminal-with-presentation bash -c 'cd $REPO && ./scripts/check.sh; read -rp \"press enter\"'"
+fi
+exit 0

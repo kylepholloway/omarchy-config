@@ -1,0 +1,11 @@
+# Paths (relative to ~/.config/) that differ from Omarchy defaults on purpose
+# but must NOT be tracked in this repo. One path per line; # comments allowed.
+
+# Written by config/omarchy/hooks/theme-set.d/archway-takeover on every theme
+# switch, derived from Omarchy's current defaults. Tracking them would fight
+# the hook and freeze upstream improvements.
+starship.toml
+lazygit/config.yml
+fastfetch/config.jsonc
+omarchy/branding/screensaver.txt
+omarchy/branding/about.txt

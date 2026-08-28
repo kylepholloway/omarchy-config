@@ -1,0 +1,159 @@
+# ════════════════════════════════════════════════════════════════════
+#  ARCHWAY · Omarchy shell
+#
+#  Product chrome sits on --bg-panel (#0f1319) with a low-alpha frost so
+#  the backdrop blur actually reads — the same 0.60 the design system
+#  pins for chrome glass. Selection is the accent. Borders are Ink.
+#  Nothing is coloured that isn't saying something.
+# ════════════════════════════════════════════════════════════════════
+
+[bar]
+# The bar is chrome glass: --bg-panel at the design system's --bg-glass
+# alpha, so the wallpaper reads through it without defeating the blur.
+background       = "#0f1319"
+background-alpha = 0.72
+text             = "#e0e5ec"
+# Modules calling attention to themselves get --crit, never the accent:
+# the accent means "primary action", not "something is wrong".
+active           = "#c86b6b"
+scale-with-font  = true
+size-horizontal  = 30
+size-vertical    = 32
+
+[hyprland]
+active-border            = "#6b8afd #3b5bdb 135deg"
+active-border-foreground = "#6b8afd #3b5bdb 135deg"
+
+[controls]
+# Control chrome rides the overlay-rgb alpha scale from tokens.css:
+# --o-100 (0.04) idle, --o-200 (0.08) hover, --o-500 (0.20) selected.
+normal-color        = "#e0e5ec"
+normal-fill-alpha   = 0.04
+normal-border       = "#e0e5ec"
+normal-border-width = 1
+normal-border-alpha = 0.32
+
+hover-cursor-color        = "#fafbfc"
+hover-cursor-fill-alpha   = 0.08
+hover-cursor-border       = "#6b8afd"
+hover-cursor-border-width = 1
+hover-cursor-border-alpha = 0.48
+
+# Focus is the accent ring — the same affordance the product uses.
+focus-color        = "#fafbfc"
+focus-fill-alpha   = 0.08
+focus-border       = "#6b8afd"
+focus-border-width = 1
+focus-border-alpha = 0.80
+
+# Selected: raised surface + accent text. The product's active-nav rule.
+selected-color        = "#6b8afd"
+selected-fill-alpha   = 0.16
+selected-border       = "#6b8afd"
+selected-border-width = 0
+selected-border-alpha = 1.0
+
+pressed-fill-alpha   = 0.24
+selection-fill-alpha = 0.32
+
+[spacing]
+# Slightly roomier than stock. Archway is dense where density is earned;
+# chrome is not one of those places.
+scale = 1.05
+scale-with-font = true
+row-gap   = 8
+panel-gap = 14
+
+[font]
+base-size = 12
+
+[popups]
+# Popovers sit on --bg-panel at --r-panel (10px), bordered in the accent.
+background       = "#0f1319"
+background-alpha = 0.97
+text             = "#e0e5ec"
+border           = "hyprland.active-border"
+border-alpha     = 1.0
+border-width     = 2
+
+[tooltip]
+# Tooltips use --bg-frost (0.72 wash) — the value the design system
+# reserves for canvas tooltips, where label readability wins.
+background       = "#0f1319"
+background-alpha = 0.94
+text             = "#e0e5ec"
+border           = "#283044"
+border-alpha     = 1.0
+
+[notifications]
+background       = "#0f1319"
+background-alpha = 0.97
+text             = "#e0e5ec"
+border           = "hyprland.active-border"
+border-alpha     = 1.0
+border-width     = 2
+countdown        = "#6b8afd"
+
+[launcher]
+background                = "#0f1319"
+background-alpha          = 0.94
+text                      = "#e0e5ec"
+border                    = "hyprland.active-border"
+border-alpha              = 1.0
+# --bg-scrim is a heavy dark wash: a light scrim leaves the page too
+# visible for any blur to register against.
+scrim                     = "#000000"
+scrim-alpha               = 0.72
+selected-background       = "#6b8afd"
+selected-background-alpha = 0.16
+selected-text             = "#fafbfc"
+selected-border           = "#6b8afd"
+selected-border-alpha     = 0.80
+
+[menu]
+background                = "#0f1319"
+background-alpha          = 0.97
+text                      = "#e0e5ec"
+border                    = "hyprland.active-border"
+border-alpha              = 1.0
+scrim                     = "#000000"
+scrim-alpha               = 0.72
+selected-background       = "#6b8afd"
+selected-background-alpha = 0.16
+selected-text             = "#fafbfc"
+selected-border           = "#6b8afd"
+selected-border-alpha     = 0.80
+
+[polkit]
+background       = "#0f1319"
+background-alpha = 0.97
+text             = "#e0e5ec"
+text-error       = "#c86b6b"
+border           = "hyprland.active-border"
+border-error     = "#c86b6b"
+border-alpha     = 1.0
+scrim            = "#000000"
+scrim-alpha      = 0.72
+accent           = "#6b8afd"
+
+[lock]
+background       = "#0f1319"
+background-alpha = 0.80
+text             = "#fafbfc"
+placeholder      = "#6a7488"
+text-error       = "#c86b6b"
+border           = "#283044"
+border-active    = "hyprland.active-border"
+border-error     = "#c86b6b"
+border-alpha     = 1.0
+selection        = "#6b8afd"
+selection-alpha  = 0.40
+
+[image-picker]
+scrim                   = "#07090d"
+scrim-alpha             = 0.72
+text                    = "#e0e5ec"
+selected-border         = "#6b8afd"
+selected-border-alpha   = 1.0
+unselected-border       = "#283044"
+unselected-border-alpha = 0.60

@@ -1,0 +1,20 @@
+# Never commit secrets or machine/session state
+*.bak
+*.bak.*
+*.log
+*.sock
+*.pid
+.DS_Store
+
+# Browser / app profiles and session data
+**/Default/
+**/chromium/
+**/WidevineCdm/
+
+# Keys & credentials — belt and braces
+*.key
+*.pem
+id_*
+known_hosts
+.netrc
+**/gh/hosts.yml

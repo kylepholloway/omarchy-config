@@ -1,0 +1,62 @@
+# ════════════════════════════════════════════════════════════════════
+#  ARCHWAY · Omarchy theme
+#  Product Observability — the living map of your product.
+#
+#  Every value below is an Archway design-system token, taken verbatim
+#  from archway-design-system/src/tokens.css. Nothing here is invented.
+#
+#    surfaces  → Ink   (cool near-blacks, the product canvas)
+#    text      → Slate (near-whites with a faint blue hue)
+#    accent    → Signal-400 #6b8afd — the brand's single voice of
+#                attention. Never decorative.
+#    status    → the cool-leaning semantic quartet + extended ramps
+# ════════════════════════════════════════════════════════════════════
+
+mode = "dark"
+
+# ── Accent · Signal-400. One accent, used precisely. ────────────────
+accent = "#6b8afd"                  # --signal-400 / --accent
+selection = "#283044"               # --ink-700  / --bg-hover
+muted = "#454d5f"                   # --ink-600  / --bg-active
+
+# ── Surfaces · the Ink ramp ─────────────────────────────────────────
+background = "#0b0e14"              # --ink-950  / --bg-body
+dark_background = "#07090d"         # --ink-975  / --bg-sunken
+darker_background = "#04050a"       # below sunken — chrome that must recede
+lighter_background = "#161c26"      # --ink-800  / --bg-raised
+
+# ── Text · the Slate ramp ───────────────────────────────────────────
+foreground = "#e0e5ec"              # --slate-300 / --text-secondary
+dark_foreground = "#6a7488"         # --ink-500   / --text-dim on dark
+light_foreground = "#ebeef3"        # --slate-200
+bright_foreground = "#fafbfc"       # --slate-50  / --text-primary
+
+# ── Window chrome ───────────────────────────────────────────────────
+# Active bay carries the signal; everything else recedes. Mirrors the
+# product's active-nav affordance: accent edge, raised surface.
+hyprland_active_border = "rgba(6b8afdff) rgba(3b5bdbff) 135deg"
+hyprland_inactive_border = "rgba(283044aa)"
+active_border_color = "#6b8afd"
+active_tab_background = "#161c26"
+selection_background = "#283044"
+selection_foreground = "#fafbfc"
+cursor = "#6b8afd"
+
+# ── Terminal palette · the semantic quartet + extended ramps ────────
+# Normal stops = the 500s (body weight). Bright stops = the 400s
+# (one step up the ramp), so bold text lifts without changing hue.
+red = "#c86b6b"                     # --crit-500
+yellow = "#e2b14a"                  # --warn-500
+orange = "#dc8742"                  # --orange-500
+green = "#4fb39a"                   # --ok-500
+cyan = "#4aa39d"                    # --teal-500
+blue = "#6b8afd"                    # --signal-400 (the accent)
+magenta = "#b07ed9"                 # --plum-500
+brown = "#893f26"                   # --code-700
+
+bright_red = "#d48989"              # --crit-400
+bright_yellow = "#e8be62"           # --warn-400
+bright_green = "#5abfa3"            # --ok-400
+bright_cyan = "#57b6af"             # --teal-400
+bright_blue = "#8ba0f9"             # --signal-300
+bright_magenta = "#c39be8"          # --plum-400

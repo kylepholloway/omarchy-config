@@ -1,0 +1,18 @@
+# Archway · lazygit
+# Accent on what is active, status colours on what changed. Nothing else.
+gui:
+  theme:
+    activeBorderColor: ["#6b8afd", bold]   # Signal-400 — the focused panel
+    inactiveBorderColor: ["#454d5f"]       # Ink-600
+    searchingActiveBorderColor: ["#e2b14a"] # warn-500
+    optionsTextColor: ["#8d98ab"]          # Slate-500
+    selectedLineBgColor: ["#283044"]       # Ink-700 / --bg-hover
+    inactiveViewSelectedLineBgColor: ["#161c26"]
+    cherryPickedCommitBgColor: ["#24378c"] # Signal-800
+    cherryPickedCommitFgColor: ["#8ba0f9"] # Signal-300
+    markedBaseCommitBgColor: ["#24378c"]
+    markedBaseCommitFgColor: ["#8ba0f9"]
+    unstagedChangesColor: ["#c86b6b"]      # crit-500
+    defaultFgColor: ["#e0e5ec"]            # Slate-300
+  authorColors:
+    "*": "#7aa0c4"                         # info-500

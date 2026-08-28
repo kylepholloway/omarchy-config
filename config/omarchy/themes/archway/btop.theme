@@ -1,0 +1,72 @@
+# Archway · btop
+# Surfaces are Ink, text is Slate, the one accent is Signal-400, and the
+# meters follow Archway's semantic conventions: ok → warn → crit for
+# anything that degrades, the Signal ramp for anything that is just load.
+
+theme[main_bg]="#0b0e14"
+theme[main_fg]="#e0e5ec"
+theme[title]="#fafbfc"
+theme[hi_fg]="#6b8afd"
+theme[selected_bg]="#283044"
+theme[selected_fg]="#6b8afd"
+theme[inactive_fg]="#454d5f"
+theme[graph_text]="#b9c3d4"
+theme[meter_bg]="#161c26"
+theme[proc_misc]="#8d98ab"
+
+# Box outlines — the four panels read as four distinct systems.
+theme[cpu_box]="#6b8afd"
+theme[mem_box]="#4aa39d"
+theme[net_box]="#b07ed9"
+theme[proc_box]="#7aa0c4"
+theme[div_line]="#283044"
+
+# Temperature: ok → warn → crit. Never anything else.
+theme[temp_start]="#4fb39a"
+theme[temp_mid]="#e2b14a"
+theme[temp_end]="#c86b6b"
+
+# CPU load: the Signal ramp. Load is not a failure, so it stays on accent.
+theme[cpu_start]="#3b5bdb"
+theme[cpu_mid]="#6b8afd"
+theme[cpu_end]="#8ba0f9"
+
+theme[free_start]="#1f5855"
+theme[free_mid]="#4aa39d"
+theme[free_end]="#57b6af"
+
+theme[cached_start]="#24378c"
+theme[cached_mid]="#4a6bdc"
+theme[cached_end]="#8ba0f9"
+
+theme[available_start]="#2b6b5c"
+theme[available_mid]="#4fb39a"
+theme[available_end]="#5abfa3"
+
+theme[used_start]="#4fb39a"
+theme[used_mid]="#e2b14a"
+theme[used_end]="#c86b6b"
+
+# Network: download reads as inbound (info), upload as outbound (ok).
+theme[download_start]="#3d5a76"
+theme[download_mid]="#7aa0c4"
+theme[download_end]="#97b5d0"
+
+theme[upload_start]="#2b6b5c"
+theme[upload_mid]="#4fb39a"
+theme[upload_end]="#5abfa3"
+
+theme[process_start]="#3b5bdb"
+theme[process_mid]="#6b8afd"
+theme[process_end]="#8ba0f9"
+
+# Graph spectrum: the Ink ramp climbing into Slate — exactly the
+# surface-to-text spectrum the product uses.
+theme[gradient_color_0]="#0b0e14"
+theme[gradient_color_1]="#161c26"
+theme[gradient_color_2]="#283044"
+theme[gradient_color_3]="#454d5f"
+theme[gradient_color_4]="#6a7488"
+theme[gradient_color_5]="#8d98ab"
+theme[gradient_color_6]="#b9c3d4"
+theme[gradient_color_7]="#fafbfc"

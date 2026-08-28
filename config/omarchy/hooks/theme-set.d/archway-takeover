@@ -1,0 +1,66 @@
+#!/bin/bash
+# ════════════════════════════════════════════════════════════════════
+#  Archway takeover — scoped to the Archway theme.
+#
+#  A few things Omarchy themes cannot reach on their own live outside
+#  the theme directory and would otherwise persist after switching away:
+#  the screensaver and About branding, the fastfetch logo colour, the
+#  starship prompt, and lazygit. This hook installs them when Archway is
+#  selected and restores Omarchy's own defaults for every other theme.
+#
+#  Where possible it DERIVES from Omarchy's current default rather than
+#  shipping a fork, so upstream changes still flow through.
+#
+#  Not handled here on purpose: the Plymouth boot screen and the SDDM
+#  login screen. Those live in /usr/share, need sudo, and rebuild the
+#  initramfs — far too heavy to run on every theme switch. Set them once
+#  with `omarchy plymouth set by theme archway`, undo with
+#  `omarchy plymouth reset`.
+# ════════════════════════════════════════════════════════════════════
+set -u
+
+THEME="${1:-}"
+OMARCHY="${OMARCHY_PATH:-/usr/share/omarchy}"
+THEME_DIR="$HOME/.config/omarchy/themes/archway"
+TAKEOVER="$THEME_DIR/takeover"
+BRANDING="$HOME/.config/omarchy/branding"
+FASTFETCH_SYS="/etc/fastfetch/config.jsonc"
+FASTFETCH_USER="$HOME/.config/fastfetch/config.jsonc"
+STARSHIP="$HOME/.config/starship.toml"
+LAZYGIT="$HOME/.config/lazygit/config.yml"
+
+install_file() { [[ -f $1 ]] && { mkdir -p "$(dirname "$2")"; cp "$1" "$2"; }; }
+
+if [[ $THEME == "archway" ]]; then
+  install_file "$TAKEOVER/screensaver.txt" "$BRANDING/screensaver.txt"
+  install_file "$TAKEOVER/about.txt"       "$BRANDING/about.txt"
+  install_file "$TAKEOVER/lazygit.yml"     "$LAZYGIT"
+
+  # fastfetch: the logo is the Archway mark, so it takes the accent. The three
+  # module sections keep their own colours — they already resolve through the
+  # Archway palette, and an accent used everywhere means nothing. Derived from
+  # the system config so upstream edits still land.
+  if [[ -f $FASTFETCH_SYS ]]; then
+    mkdir -p "$(dirname "$FASTFETCH_USER")"
+    sed '0,/"color": *{ *"1": *"green" *}/s//"color": { "1": "blue" }/' \
+      "$FASTFETCH_SYS" >"$FASTFETCH_USER"
+  fi
+
+  # starship: Omarchy's default is cyan throughout. Accent marks identity —
+  # the prompt character, the repo root, the branch. The error symbol takes
+  # crit red instead, because status colours follow convention, not the accent.
+  if [[ -f $OMARCHY/config/starship.toml ]]; then
+    sed -e 's/\[✗\](bold cyan)/[✗](bold red)/' \
+        -e 's/\bcyan\b/blue/g' \
+        "$OMARCHY/config/starship.toml" >"$STARSHIP"
+  fi
+else
+  # Hand everything back to Omarchy.
+  install_file "$OMARCHY/logo.txt" "$BRANDING/screensaver.txt"
+  install_file "$OMARCHY/icon.txt" "$BRANDING/about.txt"
+  install_file "$OMARCHY/config/starship.toml" "$STARSHIP"
+  rm -f "$FASTFETCH_USER"                       # fall back to /etc
+  [[ -f $LAZYGIT ]] && : >"$LAZYGIT"            # Omarchy ships this empty
+fi
+
+exit 0
