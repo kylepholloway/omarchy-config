@@ -1,3 +1,5 @@
 bolt-launcher
 flyline
 runelite
+slack-desktop
+zoom

@@ -28,6 +28,8 @@ dotnet-runtime
 dua-cli
 efibootmgr
 evince
+evolution
+evolution-ews
 exfatprogs
 expac
 eza
@@ -71,6 +73,7 @@ kernel-modules-hook
 lazydocker
 lazygit
 less
+libappindicator
 libfprint
 libpulse
 libreoffice-fresh
