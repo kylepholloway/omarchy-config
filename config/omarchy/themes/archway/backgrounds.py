@@ -41,17 +41,31 @@ LOCK_ARCH = "M37.4,38.7c-.7,0-1.3-.6-1.3-1.3v-16c0-7.5-6.1-13.6-13.6-13.6s-13.6,
 LOCK_PLUMB = "M23,35.7h-.9v-1.1h.9v1.1ZM23,32.8h-.9v-1.1h.9v1.1ZM23,30h-.9v-1.1h.9v1.1ZM23,27.1h-.9v-1.1h.9v1.1Z"
 
 
-def mark(x, y, size, fill, opacity=1.0, dot=True, plumb=True):
+def mark(x, y, size, fill, opacity=1.0, dot=True, plumb=True, arch=True):
     """Archway mark scaled from its 72u viewBox, top-left at (x, y)."""
     s = size / 72.0
-    p = [f'<g transform="translate({x:.1f},{y:.1f}) scale({s:.5f})" fill="{fill}" opacity="{opacity}">',
-         f'<path d="{MARK_ARCH}"/>']
+    p = [f'<g transform="translate({x:.1f},{y:.1f}) scale({s:.5f})" fill="{fill}" opacity="{opacity}">']
+    if arch:
+        p.append(f'<path d="{MARK_ARCH}"/>')
     if dot:
         p.append('<circle cx="36" cy="37" r="4"/>')
     if plumb:
         p.append(f'<path d="{MARK_PLUMB}"/>')
     p.append('</g>')
     return "".join(p)
+
+
+def mark_geo(x, y, size):
+    """The mark's real measurements, read off the shipped path rather than
+       guessed, so anything drawn around it stays true to the logo.
+
+       In the 72u viewBox: springing centre (36, 35); radii 23.8 inner,
+       26.0 centreline, 28.2 outer; legs run to y=65.2, i.e. 1.162 x the
+       centreline radius; the dot is r=4 at y=37 (0.154 x R)."""
+    s = size / 72.0
+    return {"cx": x + 36*s, "cy": y + 35*s,
+            "r_in": 23.8*s, "r_mid": 26.0*s, "r_out": 28.2*s,
+            "foot": y + 65.2*s, "dot_y": y + 37*s, "dot_r": 4*s, "s": s}
 
 
 def lockup(x, y, width, fill_word, fill_mark, opacity=1.0):
@@ -128,58 +142,61 @@ def w_arch():
 # 1 · CANVAS — the product's node graph, traced
 # ══════════════════════════════════════════════════════════════════
 # 2 · BLUEPRINT — the mark as a construction drawing
+#
+# The logo here is the shipped path via mark(); every tick, tangent and
+# dimension measures THAT via mark_geo(). An earlier version hand-drew the
+# arch and got the legs 26% short, the dot 4x too small and the plumb dashes
+# 5x too thin — a bastardised logo under a nice treatment.
 # ══════════════════════════════════════════════════════════════════
 def w_blueprint():
-    d = [dotgrid(64, 1.6, INK_600, 0.22),
-         glow("gD", SIG_600, [(0, 0.13), (1, 0)])]
+    d = [dotgrid(64, 1.6, INK_600, 0.16), glow("gD", SIG_600, [(0, 0.11), (1, 0)])]
     s = head("".join(d))
     s += f'<rect width="{W}" height="{H}" fill="{INK_975}"/>'
     s += f'<rect width="{W}" height="{H}" fill="url(#dg64)"/>'
-    # fine ruled grid
     for i in range(0, W + 1, 320):
-        s += f'<line x1="{i}" y1="0" x2="{i}" y2="{H}" stroke="{INK_800}" stroke-width="1.5"/>'
+        s += f'<line x1="{i}" y1="0" x2="{i}" y2="{H}" stroke="{INK_800}" stroke-width="1.2" opacity="0.65"/>'
     for j in range(0, H + 1, 320):
-        s += f'<line x1="0" y1="{j}" x2="{W}" y2="{j}" stroke="{INK_800}" stroke-width="1.5"/>'
-    s += f'<ellipse cx="{W/2}" cy="{H*0.47}" rx="{W*0.35}" ry="{H*0.45}" fill="url(#gD)"/>'
+        s += f'<line x1="0" y1="{j}" x2="{W}" y2="{j}" stroke="{INK_800}" stroke-width="1.2" opacity="0.65"/>'
 
-    cx, cy = W/2, H*0.53
-    R = 720          # arch springing radius
-    leg = 620        # leg length below the springing line
-    sw = 26          # stroke weight of the arch itself
-    # arch as a stroked path: left leg up, semicircle, right leg down
-    arch = (f"M{cx-R},{cy+leg} L{cx-R},{cy} A{R},{R} 0 0 1 {cx+R},{cy} L{cx+R},{cy+leg}")
-    # construction geometry
-    s += f'<circle cx="{cx}" cy="{cy}" r="{R}" fill="none" stroke="{SIG_600}" stroke-width="2" stroke-dasharray="18 22" opacity="0.5"/>'
-    s += f'<circle cx="{cx}" cy="{cy}" r="{R*1.42:.0f}" fill="none" stroke="{INK_700}" stroke-width="2" stroke-dasharray="6 30"/>'
-    s += f'<circle cx="{cx}" cy="{cy}" r="{R*0.42:.0f}" fill="none" stroke="{INK_700}" stroke-width="2" stroke-dasharray="6 30"/>'
-    s += f'<line x1="{cx-R*1.75:.0f}" y1="{cy}" x2="{cx+R*1.75:.0f}" y2="{cy}" stroke="{INK_600}" stroke-width="2" stroke-dasharray="40 18 8 18"/>'
-    s += f'<line x1="{cx}" y1="{cy-R*1.75:.0f}" x2="{cx}" y2="{cy+leg+340}" stroke="{INK_600}" stroke-width="2" stroke-dasharray="40 18 8 18"/>'
+    size = 1620
+    mx, my = W/2 - size/2, H*0.465 - 35*(size/72.0)
+    g = mark_geo(mx, my, size)
+    cx, cy = g["cx"], g["cy"]
+    s += f'<ellipse cx="{cx}" cy="{cy}" rx="{W*0.32}" ry="{H*0.42}" fill="url(#gD)"/>'
+
+    s += (f'<circle cx="{cx}" cy="{cy}" r="{g["r_mid"]:.0f}" fill="none" stroke="{SIG_600}" '
+          f'stroke-width="2" stroke-dasharray="16 20" opacity="0.38"/>')
+    ring = g["r_out"] * 1.48
+    s += f'<circle cx="{cx}" cy="{cy}" r="{ring:.0f}" fill="none" stroke="{INK_700}" stroke-width="1.8" opacity="0.85"/>'
+    s += (f'<circle cx="{cx}" cy="{cy}" r="{g["r_out"]*0.46:.0f}" fill="none" stroke="{INK_700}" '
+          f'stroke-width="1.6" stroke-dasharray="5 26" opacity="0.7"/>')
     for a in range(0, 360, 15):
         t = math.radians(a)
-        r0, r1 = (R*1.42, R*1.42 + (46 if a % 45 == 0 else 24))
-        s += (f'<line x1="{cx+r0*math.cos(t):.1f}" y1="{cy+r0*math.sin(t):.1f}" '
-              f'x2="{cx+r1*math.cos(t):.1f}" y2="{cy+r1*math.sin(t):.1f}" '
-              f'stroke="{INK_600}" stroke-width="2"/>')
-    # the arch
-    s += f'<path d="{arch}" fill="none" stroke="{SIG_800}" stroke-width="{sw+22}" stroke-linecap="round" opacity="0.35"/>'
-    s += f'<path d="{arch}" fill="none" stroke="{SIG_400}" stroke-width="{sw}" stroke-linecap="round"/>'
-    # keystone + plumb line
-    s += f'<circle cx="{cx}" cy="{cy}" r="26" fill="{SIG_400}"/>'
-    s += f'<circle cx="{cx}" cy="{cy}" r="72" fill="none" stroke="{SIG_400}" stroke-width="3" opacity="0.55"/>'
-    for k in range(1, 9):
-        s += f'<rect x="{cx-4}" y="{cy+90+k*62}" width="8" height="26" fill="{SIG_400}" opacity="{max(0.12, 0.9-k*0.1):.2f}"/>'
-    # dimension line
-    s += f'<line x1="{cx-R}" y1="{cy+leg+180}" x2="{cx+R}" y2="{cy+leg+180}" stroke="{INK_500}" stroke-width="2"/>'
-    for e in (cx-R, cx+R):
-        s += f'<line x1="{e}" y1="{cy+leg+150}" x2="{e}" y2="{cy+leg+210}" stroke="{INK_500}" stroke-width="2"/>'
-    s += (f'<rect x="{cx-140}" y="{cy+leg+152}" width="280" height="56" fill="{INK_975}"/>'
-          f'<text x="{cx}" y="{cy+leg+193}" text-anchor="middle" font-family="JetBrainsMono Nerd Font, monospace" '
-          f'font-size="34" letter-spacing="4" fill="{SLATE_500}">SPAN 1.00</text>')
-    # corner plate
-    s += (f'<text x="200" y="{H-260}" font-family="JetBrainsMono Nerd Font, monospace" font-size="34" '
-          f'letter-spacing="10" fill="{INK_500}">ARCHWAY · PRODUCT OBSERVABILITY</text>')
-    s += (f'<text x="200" y="{H-190}" font-family="JetBrainsMono Nerd Font, monospace" font-size="34" '
-          f'letter-spacing="10" fill="{INK_600}">MAKE THE INVISIBLE VISIBLE</text>')
+        ln = 40 if a % 45 == 0 else 20
+        s += (f'<line x1="{cx+ring*math.cos(t):.1f}" y1="{cy+ring*math.sin(t):.1f}" '
+              f'x2="{cx+(ring+ln)*math.cos(t):.1f}" y2="{cy+(ring+ln)*math.sin(t):.1f}" '
+              f'stroke="{INK_600}" stroke-width="1.8" opacity="0.75"/>')
+    s += (f'<line x1="{cx-ring-160:.0f}" y1="{cy}" x2="{cx+ring+160:.0f}" y2="{cy}" '
+          f'stroke="{INK_600}" stroke-width="1.6" stroke-dasharray="40 16 6 16" opacity="0.7"/>')
+    s += (f'<line x1="{cx}" y1="{cy-ring-160:.0f}" x2="{cx}" y2="{g["foot"]+300:.0f}" '
+          f'stroke="{INK_600}" stroke-width="1.6" stroke-dasharray="40 16 6 16" opacity="0.7"/>')
+
+    s += mark(mx, my, size, SIG_400)
+
+    dy = g["foot"] + 150
+    x0, x1 = cx - g["r_out"], cx + g["r_out"]
+    s += f'<line x1="{x0:.0f}" y1="{dy:.0f}" x2="{x1:.0f}" y2="{dy:.0f}" stroke="{INK_500}" stroke-width="1.8"/>'
+    for e in (x0, x1):
+        s += f'<line x1="{e:.0f}" y1="{dy-28:.0f}" x2="{e:.0f}" y2="{dy+28:.0f}" stroke="{INK_500}" stroke-width="1.8"/>'
+    s += (f'<rect x="{cx-130:.0f}" y="{dy-27:.0f}" width="260" height="54" fill="{INK_975}"/>'
+          f'<text x="{cx:.0f}" y="{dy+11:.0f}" text-anchor="middle" '
+          f'font-family="JetBrainsMono Nerd Font, monospace" font-size="30" letter-spacing="4" '
+          f'fill="{SLATE_500}">SPAN 1.00</text>')
+
+    s += (f'<text x="200" y="{H-256}" font-family="JetBrainsMono Nerd Font, monospace" font-size="30" '
+          f'letter-spacing="9" fill="{INK_500}">ARCHWAY · PRODUCT OBSERVABILITY</text>')
+    s += (f'<text x="200" y="{H-192}" font-family="JetBrainsMono Nerd Font, monospace" font-size="30" '
+          f'letter-spacing="9" fill="{INK_600}">MAKE THE INVISIBLE VISIBLE</text>')
     write("2-blueprint", s)
 
 
@@ -240,251 +257,102 @@ def w_signal():
 # 4 · JOURNEY — a traced user journey across the system
 # ══════════════════════════════════════════════════════════════════
 # 5 · COLONNADE — an arcade of arches, one carrying the signal
+
+
 # ══════════════════════════════════════════════════════════════════
-def w_strata():
-    d = [glow("gG", SIG_400, [(0, 0.20), (0.55, 0.05), (1, 0)])]
-    s = head("".join(d))
+# QUIET SET — few lines, low contrast, mark always at true proportion.
+# Every one of these draws the shipped path through mark() and measures
+# with mark_geo(); none re-derives the geometry by eye.
+# ══════════════════════════════════════════════════════════════════
+
+def echo_arch(g, k, stroke, width, op):
+    """One hairline echo of the mark, k x its radius, standing on its feet
+       and keeping the mark's own 1.162 leg-to-radius ratio."""
+    R = g["r_mid"] * k
+    cy = g["foot"] - R * 1.162
+    return (f'<path d="M{g["cx"]-R:.1f},{g["foot"]:.1f} L{g["cx"]-R:.1f},{cy:.1f} '
+            f'A{R:.1f},{R:.1f} 0 0 1 {g["cx"]+R:.1f},{cy:.1f} L{g["cx"]+R:.1f},{g["foot"]:.1f}" '
+            f'fill="none" stroke="{stroke}" stroke-width="{width}" opacity="{op}"/>')
+
+
+def w_halo():
+    """The mark and four echoes of it. That is the whole picture."""
+    s = head(glow("gH", SIG_600, [(0, 0.15), (0.55, 0.04), (1, 0)]))
     s += f'<rect width="{W}" height="{H}" fill="{INK_950}"/>'
-
-    base = H * 0.845         # springing floor every arch stands on
-    N, hot = 9, 4            # nine bays, the fifth carries the signal
-    pitch = W / (N - 1.0)
-    R = pitch * 0.295
-    leg = 940.0
-
-    def bay(cx, R, leg, stroke, width, op, cap="butt"):
-        p = (f"M{cx-R:.0f},{base:.0f} L{cx-R:.0f},{base-leg:.0f} "
-             f"A{R:.0f},{R:.0f} 0 0 1 {cx+R:.0f},{base-leg:.0f} L{cx+R:.0f},{base:.0f}")
-        return (f'<path d="{p}" fill="none" stroke="{stroke}" stroke-width="{width}" '
-                f'opacity="{op}" stroke-linecap="{cap}"/>')
-
-    # the arcade behind: the same bays, receding
-    for k, (sc, op) in enumerate(((1.30, 0.15), (1.66, 0.08))):
-        for i in range(N + 1):
-            s += bay(pitch * (i - 0.5), R * sc, leg * sc, INK_600, 3, op)
-
-    s += f'<ellipse cx="{pitch*hot:.0f}" cy="{base-leg-R*0.4:.0f}" rx="{R*3.2:.0f}" ry="{R*3.0:.0f}" fill="url(#gG)"/>'
-
-    # the arcade itself
-    for i in range(N):
-        cx = pitch * i
-        if i == hot:
-            continue
-        dist = abs(i - hot) / (N - 1.0)
-        s += bay(cx, R, leg, INK_600, 7, 0.85 - 0.35 * dist)
-        s += f'<circle cx="{cx:.0f}" cy="{base-leg-R:.0f}" r="9" fill="{INK_500}" opacity="0.8"/>'
-        for k in range(1, 7):
-            s += (f'<rect x="{cx-3:.0f}" y="{base-leg-R+70+k*66:.0f}" width="6" height="22" '
-                  f'fill="{INK_600}" opacity="{max(0.10, 0.55-k*0.07):.2f}"/>')
-
-    # the one bay carrying the signal
-    cx = pitch * hot
-    s += bay(cx, R, leg, SIG_800, 30, 0.55, "round")
-    s += bay(cx, R, leg, SIG_400, 9, 1.0, "round")
-    s += f'<circle cx="{cx:.0f}" cy="{base-leg-R:.0f}" r="20" fill="{SIG_400}"/>'
-    s += f'<circle cx="{cx:.0f}" cy="{base-leg-R:.0f}" r="62" fill="none" stroke="{SIG_400}" stroke-width="3" opacity="0.5"/>'
-    for k in range(1, 8):
-        s += (f'<rect x="{cx-5:.0f}" y="{base-leg-R+90+k*70:.0f}" width="10" height="28" '
-              f'fill="{SIG_400}" opacity="{max(0.14, 0.95-k*0.12):.2f}"/>')
-
-    # the floor
-    s += f'<line x1="0" y1="{base:.0f}" x2="{W}" y2="{base:.0f}" stroke="{INK_700}" stroke-width="4"/>'
-    s += f'<line x1="0" y1="{base+14:.0f}" x2="{W}" y2="{base+14:.0f}" stroke="{INK_800}" stroke-width="2"/>'
-
-    s += lockup(W/2 - 300, H * 0.885, 600, SLATE_400, SIG_400, 0.85)
-    write("5-colonnade", s)
+    size = 1180
+    mx, my = W/2 - size/2, H*0.50 - 35*(size/72.0)
+    g = mark_geo(mx, my, size)
+    s += f'<ellipse cx="{g["cx"]}" cy="{g["cy"]}" rx="{W*0.30}" ry="{H*0.40}" fill="url(#gH)"/>'
+    for k, op in ((1.38, 0.50), (1.82, 0.30), (2.32, 0.17), (2.88, 0.09)):
+        s += echo_arch(g, k, INK_700, 3, op)
+    s += mark(mx, my, size, SIG_400)
+    write("1-halo", s)
 
 
-# ══════════════════════════════════════════════════════════════════
-# 6 · SUNKEN — the quiet one
-# ══════════════════════════════════════════════════════════════════
-def w_sunken():
-    d = [dotgrid(96, 1.7, INK_700, 0.55),
-         glow("gH", SIG_600, [(0, 0.075), (1, 0)])]
-    s = head("".join(d))
+def w_veil():
+    """The mark as a single soft wash — no stroke, no field, nothing else."""
+    s = head(f'<linearGradient id="veil" x1="0" y1="0" x2="0" y2="1">'
+             f'<stop offset="0" stop-color="{SIG_300}" stop-opacity="0.80"/>'
+             f'<stop offset="0.45" stop-color="{SIG_400}" stop-opacity="0.38"/>'
+             f'<stop offset="1" stop-color="{SIG_600}" stop-opacity="0.04"/>'
+             f'</linearGradient>' + glow("gV", SIG_600, [(0, 0.12), (1, 0)]))
+    s += f'<rect width="{W}" height="{H}" fill="{INK_950}"/>'
+    size = 1620
+    mx, my = W/2 - size/2, H*0.50 - 35*(size/72.0)
+    g = mark_geo(mx, my, size)
+    s += f'<ellipse cx="{g["cx"]}" cy="{g["cy"]}" rx="{W*0.34}" ry="{H*0.46}" fill="url(#gV)"/>'
+    s += mark(mx, my, size, "url(#veil)")
+    write("4-veil", s)
+
+
+def w_drift():
+    """Eight arcs, widely spaced and barely there, with the mark at the
+       centre. The calm relative of an interference field."""
+    s = head(glow("gR", SIG_600, [(0, 0.12), (0.6, 0.03), (1, 0)]))
+    s += f'<rect width="{W}" height="{H}" fill="{INK_950}"/>'
+    cx, cy = W/2, H*0.70
+    s += f'<ellipse cx="{cx}" cy="{cy-420}" rx="{W*0.40}" ry="{H*0.44}" fill="url(#gR)"/>'
+    for i in range(8):
+        R = 640 + i * 310
+        op = 0.28 * (1.0 - i / 8.0) ** 1.2
+        s += (f'<path d="M{cx-R},{cy:.0f} A{R},{R} 0 0 1 {cx+R},{cy:.0f}" fill="none" '
+              f'stroke="{INK_600}" stroke-width="2.4" opacity="{op:.3f}"/>')
+    s += f'<line x1="0" y1="{cy:.0f}" x2="{W}" y2="{cy:.0f}" stroke="{INK_800}" stroke-width="2"/>'
+    size = 800
+    s += mark(cx - size/2, cy - 65.2*(size/72.0), size, SIG_400)
+    write("5-drift", s)
+
+
+def w_eclipse():
+    """Almost nothing: one soft bloom with the mark low-contrast inside it.
+       Near-black at the edges."""
+    s = head(glow("gE2", SIG_500, [(0, 0.26), (0.35, 0.08), (0.7, 0.015), (1, 0)]))
     s += f'<rect width="{W}" height="{H}" fill="{INK_975}"/>'
-    s += f'<rect width="{W}" height="{H}" fill="url(#dg96)"/>'
-    s += f'<ellipse cx="{W/2}" cy="{H*0.55}" rx="{W*0.4}" ry="{H*0.5}" fill="url(#gH)"/>'
-    cx, cy, R, leg = W/2, H*0.545, 1080.0, 880.0
-    hair = (f"M{cx-R},{cy+leg} L{cx-R},{cy} A{R},{R} 0 0 1 {cx+R},{cy} L{cx+R},{cy+leg}")
-    s += f'<path d="{hair}" fill="none" stroke="{INK_600}" stroke-width="5"/>'
-    s += (f'<path d="{hair}" fill="none" stroke="{SIG_400}" stroke-width="5" opacity="0.40" '
-          f'stroke-dasharray="1400 6000" stroke-dashoffset="-900"/>')
-    s += f'<circle cx="{cx}" cy="{cy}" r="14" fill="{SIG_400}"/>'
-    s += f'<circle cx="{cx}" cy="{cy}" r="46" fill="none" stroke="{SIG_400}" stroke-width="2.5" opacity="0.45"/>'
-    for k in range(1, 12):
-        s += f'<rect x="{cx-3}" y="{cy+70+k*74}" width="6" height="24" fill="{INK_600}" opacity="{max(0.1,0.7-k*0.055):.2f}"/>'
-    s += lockup(W/2-330, H*0.335, 660, SLATE_300, SIG_400, 1.0)
-    write("6-sunken", s)
+    size = 1320
+    mx, my = W/2 - size/2, H*0.50 - 35*(size/72.0)
+    g = mark_geo(mx, my, size)
+    s += f'<ellipse cx="{g["cx"]}" cy="{g["cy"]}" rx="{W*0.30}" ry="{W*0.30}" fill="url(#gE2)"/>'
+    s += mark(mx, my, size, SIG_400, 0.32)
+    s += mark(mx, my, size, SIG_300, 0.80, arch=False)     # dot + plumb stay crisp
+    write("6-eclipse", s)
 
 
-
-
-# ══════════════════════════════════════════════════════════════════
-# NEW · abstract field studies. No grid, nothing sitting on top of
-# anything — the arch itself is the only subject.
-# ══════════════════════════════════════════════════════════════════
-
-def arch_path(cx, cy, R, leg, floor=None):
-    """The mark's silhouette: two legs and a semicircle between them."""
-    b = cy + leg if floor is None else floor
-    return (f"M{cx-R:.1f},{b:.1f} L{cx-R:.1f},{cy:.1f} "
-            f"A{R:.1f},{R:.1f} 0 0 1 {cx+R:.1f},{cy:.1f} L{cx+R:.1f},{b:.1f}")
-
-
-def w_moire():
-    """Two families of nested arches at slightly different pitch. Where the
-       two spacings drift in and out of phase they beat — the banding is
-       emergent, not drawn."""
-    s = head(glow("gM", SIG_600, [(0, 0.20), (0.55, 0.05), (1, 0)]))
+def w_plumb():
+    """Inverted emphasis: the arch recedes to a whisper and the plumb line —
+       the part of the mark that measures — carries the accent."""
+    s = head(glow("gPL", SIG_600, [(0, 0.13), (0.6, 0.03), (1, 0)]))
     s += f'<rect width="{W}" height="{H}" fill="{INK_950}"/>'
-    s += f'<ellipse cx="{W/2}" cy="{H*0.52}" rx="{W*0.46}" ry="{H*0.56}" fill="url(#gM)"/>'
-    # Arcs only — no legs. Legs from every ring stack into a picket fence and
-    # bury the interference; the springing line does that job on its own.
-    cx, cy = W / 2, H * 0.815
-    for pitch, col, op0 in ((26.0, SIG_400, 0.55), (29.0, SIG_600, 0.48)):
-        i = 0
-        while True:
-            R = 74 + i * pitch
-            if R > W * 0.76:
-                break
-            fade = 1.0 - (R / (W * 0.76)) ** 1.5
-            s += (f'<path d="M{cx-R:.1f},{cy:.1f} A{R:.1f},{R:.1f} 0 0 1 {cx+R:.1f},{cy:.1f}" '
-                  f'fill="none" stroke="{col}" stroke-width="2.0" opacity="{op0*fade:.3f}"/>')
-            i += 1
-    s += f'<line x1="0" y1="{cy:.0f}" x2="{W}" y2="{cy:.0f}" stroke="{INK_700}" stroke-width="3"/>'
-    s += f'<circle cx="{cx}" cy="{cy-232}" r="22" fill="{SLATE_50}"/>'
-    s += f'<circle cx="{cx}" cy="{cy-232}" r="60" fill="none" stroke="{SIG_300}" stroke-width="2.5" opacity="0.6"/>'
-    for k in range(1, 4):
-        s += (f'<rect x="{cx-5}" y="{cy-192+k*46}" width="10" height="26" fill="{SIG_300}" '
-              f'opacity="{max(0.14, 0.6-k*0.14):.2f}"/>')
-    write("1-moire", s)
-
-
-def w_contour():
-    """The mark read as terrain: offset contours, every fifth one an index
-       line, the way a survey sheet marks elevation."""
-    s = head(glow("gT", SIG_600, [(0, 0.15), (0.6, 0.04), (1, 0)]))
-    s += f'<rect width="{W}" height="{H}" fill="{INK_975}"/>'
-    s += f'<ellipse cx="{W/2}" cy="{H*0.52}" rx="{W*0.44}" ry="{H*0.54}" fill="url(#gT)"/>'
-    cx, cy0, base = W / 2, H * 0.455, H * 1.04
-    for i in range(46):
-        R = 120 + i * 62
-        cy = cy0 - i * 7
-        if R > W * 0.62:
-            break
-        index = (i % 5 == 0)
-        t = 1.0 - (i / 46.0) ** 1.3
-        s += (f'<path d="{arch_path(cx, cy, R, 0, floor=base)}" fill="none" '
-              f'stroke="{SIG_400 if index else INK_600}" '
-              f'stroke-width="{4.5 if index else 2.2}" '
-              f'opacity="{(0.62 if index else 0.85)*t:.3f}"/>')
-        if index and i and R < W * 0.55:
-            s += (f'<rect x="{cx-46}" y="{cy-R-17}" width="92" height="34" fill="{INK_975}"/>'
-                  f'<text x="{cx}" y="{cy-R+9}" text-anchor="middle" '
-                  f'font-family="JetBrainsMono Nerd Font, monospace" font-size="24" '
-                  f'letter-spacing="3" fill="{INK_500}">{i*20:03d}</text>')
-    s += f'<circle cx="{cx}" cy="{cy0}" r="16" fill="{SIG_400}"/>'
-    for k in range(1, 10):
-        s += (f'<rect x="{cx-4}" y="{cy0+70+k*58}" width="8" height="24" fill="{SIG_400}" '
-              f'opacity="{max(0.08, 0.5-k*0.05):.2f}"/>')
-    write("4-contour", s)
-
-
-def w_orbit():
-    """An instrument dial around the mark — bearing ring, tick decades and
-       measurement callouts. The crosshair language, taken further."""
-    s = head(glow("gO", SIG_400, [(0, 0.16), (0.5, 0.05), (1, 0)]))
-    s += f'<rect width="{W}" height="{H}" fill="{INK_950}"/>'
-    cx, cy = W / 2, H * 0.5
-    s += f'<ellipse cx="{cx}" cy="{cy}" rx="{W*0.4}" ry="{H*0.6}" fill="url(#gO)"/>'
-    for r, wdt, op, dash in ((1180, 2, 0.68, "none"), (980, 1.5, 0.40, "4 26"),
-                             (760, 2, 0.55, "none"), (540, 1.5, 0.36, "4 26"),
-                             (1290, 3, 0.85, "none")):
-        s += (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{INK_600}" '
-              f'stroke-width="{wdt}" opacity="{op}" stroke-dasharray="{dash}"/>')
-    for a in range(0, 360, 2):
-        t = math.radians(a - 90)
-        major, mid = (a % 30 == 0), (a % 10 == 0)
-        ln = 62 if major else (34 if mid else 16)
-        col = SIG_400 if major else INK_500
-        r0 = 1290
-        s += (f'<line x1="{cx+r0*math.cos(t):.1f}" y1="{cy+r0*math.sin(t):.1f}" '
-              f'x2="{cx+(r0+ln)*math.cos(t):.1f}" y2="{cy+(r0+ln)*math.sin(t):.1f}" '
-              f'stroke="{col}" stroke-width="{3 if major else 2}" '
-              f'opacity="{0.95 if major else (0.68 if mid else 0.38)}"/>')
-        if major:
-            rl = r0 + 108
-            s += (f'<text x="{cx+rl*math.cos(t):.1f}" y="{cy+rl*math.sin(t)+10:.1f}" '
-                  f'text-anchor="middle" font-family="JetBrainsMono Nerd Font, monospace" '
-                  f'font-size="26" letter-spacing="2" fill="{SLATE_500}">{a:03d}</text>')
-    for ang in (0, 90, 180, 270):
-        t = math.radians(ang - 90)
-        s += (f'<line x1="{cx+300*math.cos(t):.1f}" y1="{cy+300*math.sin(t):.1f}" '
-              f'x2="{cx+1240*math.cos(t):.1f}" y2="{cy+1240*math.sin(t):.1f}" '
-              f'stroke="{INK_600}" stroke-width="2" stroke-dasharray="46 20 8 20" opacity="0.6"/>')
-    size = 900
-    s += mark(cx - size/2, cy - size*0.47, size, SIG_400)
-    s += f'<circle cx="{cx}" cy="{cy}" r="1290" fill="none" stroke="{SIG_400}" stroke-width="1.5" opacity="0.22"/>'
-    write("7-orbit", s)
-
-
-def w_dotwave():
-    """The dot field again, but modulated — dot radius rides a standing wave
-       radiating from the keystone. Same language as the dot logo."""
-    s = head(glow("gW", SIG_600, [(0, 0.15), (1, 0)]))
-    s += f'<rect width="{W}" height="{H}" fill="{INK_950}"/>'
-    cx, cy = W / 2, H * 0.5
-    s += f'<ellipse cx="{cx}" cy="{cy}" rx="{W*0.45}" ry="{H*0.55}" fill="url(#gW)"/>'
-    step, parts = 30.0, []
-    y = step / 2
-    row = 0
-    while y < H:
-        x = step / 2 + (step / 2 if row % 2 else 0)
-        while x < W:
-            d = math.hypot(x - cx, y - cy)
-            wave = math.sin(d / 108.0 - 1.2)           # concentric standing wave
-            fall = math.exp(-(d / 2050.0) ** 2)         # energy decays outward
-            amp = (wave * 0.5 + 0.5) * fall
-            r = 1.5 + 7.2 * (amp ** 1.7)
-            if r > 1.7:
-                col = SIG_300 if amp > 0.80 else (SIG_400 if amp > 0.42 else INK_500)
-                parts.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{r:.2f}" '
-                             f'fill="{col}" opacity="{0.10+0.80*amp:.3f}"/>')
-            x += step
-        y += step * 0.87
-        row += 1
-    s += "".join(parts)
-    size = 660
-    s += mark(cx - size/2, cy - size*0.47, size, INK_950, 1.0)   # knock the field out
-    s += mark(cx - size/2, cy - size*0.47, size, SIG_400)
-    write("8-dotwave", s)
-
-
-def w_aperture():
-    """The mark rotated about its own keystone — a rosette that only reads
-       as an arch once you find one."""
-    s = head(glow("gP", SIG_600, [(0, 0.17), (0.6, 0.04), (1, 0)]))
-    s += f'<rect width="{W}" height="{H}" fill="{INK_975}"/>'
-    cx, cy = W / 2, H * 0.5
-    s += f'<ellipse cx="{cx}" cy="{cy}" rx="{W*0.42}" ry="{H*0.55}" fill="url(#gP)"/>'
-    N = 30
-    for i in range(N):
-        a = 360.0 * i / N
-        depth = abs(((i + N/4) % N) - N/2) / (N/2)     # front-to-back falloff
-        op = 0.16 + 0.52 * depth
-        col = SIG_400 if depth > 0.72 else INK_600
-        s += (f'<g transform="rotate({a:.2f} {cx} {cy})">'
-              f'<path d="{arch_path(cx, cy - 260, 640, 150)}" fill="none" '
-              f'stroke="{col}" stroke-width="{4 if depth > 0.72 else 2.6}" '
-              f'opacity="{op:.3f}"/></g>')
-    s += f'<circle cx="{cx}" cy="{cy}" r="250" fill="{INK_975}" opacity="0.94"/>'
-    s += f'<circle cx="{cx}" cy="{cy}" r="250" fill="none" stroke="{INK_700}" stroke-width="2"/>'
-    size = 300
-    s += mark(cx - size/2, cy - size*0.46, size, SIG_400)
-    write("9-aperture", s)
+    size = 1520
+    mx, my = W/2 - size/2, H*0.50 - 35*(size/72.0)
+    g = mark_geo(mx, my, size)
+    s += f'<ellipse cx="{g["cx"]}" cy="{g["cy"]}" rx="{W*0.26}" ry="{H*0.40}" fill="url(#gPL)"/>'
+    s += mark(mx, my, size, INK_700, 0.90, dot=False, plumb=False)
+    s += (f'<line x1="{g["cx"]}" y1="{g["dot_y"]:.0f}" x2="{g["cx"]}" y2="{g["foot"]-60:.0f}" '
+          f'stroke="{SIG_600}" stroke-width="2" opacity="0.28"/>')
+    s += mark(mx, my, size, SIG_400, 1.0, arch=False)
+    write("7-plumb", s)
 
 
 if __name__ == "__main__":
-    w_arch(); w_moire(); w_blueprint(); w_signal(); w_contour()
-    w_strata(); w_sunken(); w_orbit(); w_dotwave(); w_aperture()
+    w_arch(); w_halo(); w_blueprint(); w_signal()
+    w_veil(); w_drift(); w_eclipse(); w_plumb()

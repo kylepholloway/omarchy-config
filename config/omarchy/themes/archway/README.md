@@ -65,30 +65,45 @@ photography, no illustration, no glowing orbs — per `archway-brain/brand/DESIG
 | File            | What it is                                                       |
 |-----------------|------------------------------------------------------------------|
 | `0-arch`        | the mark at scale, echoed outward in construction hairlines      |
-| `1-moire`       | concentric arcs at two pitches — the banding is the beat between them |
-| `2-blueprint`   | the mark as a construction drawing — dimensions, tangents, ticks |
+| `1-halo`        | the mark and four echoes of it — that is the whole picture       |
+| `2-blueprint`   | the mark as a construction drawing: springing circle, bearing ring, datum crosshair, span dimension |
 | `3-signal`      | the arch resolving out of a dot field                            |
-| `4-contour`     | the mark read as terrain — offset contours, every fifth indexed  |
-| `5-colonnade`   | an arcade of bays; one carries the signal                        |
-| `6-sunken`      | the quiet one — a hairline arch on Ink-975                       |
-| `7-orbit`       | an instrument dial around the mark — bearing ring and callouts   |
-| `8-dotwave`     | the dot field modulated by a standing wave from the keystone     |
-| `9-aperture`    | the mark rotated about its keystone into a rosette               |
+| `4-veil`        | the mark as one soft vertical wash, no stroke and nothing else   |
+| `5-drift`       | eight widely spaced arcs, barely there, mark at the centre       |
+| `6-eclipse`     | one soft bloom, the mark low-contrast inside it, near-black edges |
+| `7-plumb`       | inverted emphasis — the arch whispers, the plumb line takes the accent |
 
-All ten are abstractions of the mark itself. No charts, no diagrams, and
-nothing sitting on top of a grid — a background competing with the windows in
-front of it is a background doing its job badly.
+All eight are abstractions of the mark. No charts, no diagrams, and nothing
+sitting on a visible grid competing with the windows in front of it. They are
+deliberately low-contrast and sparse: a wallpaper that wins a staring contest
+with your terminal is a wallpaper doing its job badly.
 
-Only four carry the name: `0-arch`, `5-colonnade` and `6-sunken` take the
-lockup, and `2-blueprint` takes a drawing-style title block instead. The other
-six are unsigned. A wordmark on every single one reads as branding applied to
-wallpaper rather than wallpaper that happens to be on-brand.
+### The mark's geometry is not guessed
 
-Format is whichever encodes smaller per image — the dense line and dot fields
-go to JPEG q92 (visually identical here, and `1-moire` alone is 3.8 MB rather
-than 6.9 MB), the flatter compositions stay PNG. Omarchy accepts both.
+`mark()` draws the shipped path from `src/assets/logo_mark-dm.svg`, and
+`mark_geo()` reports that path's real measurements so anything drawn *around*
+the mark measures the mark rather than an approximation of it:
 
-Regenerate them with `backgrounds.py` (writes SVG; render at 5120x2880 with
+| | |
+|---|---|
+| springing centre | `(36, 35)` in the 72u viewBox |
+| radii | 23.8 inner · 26.0 centreline · 28.2 outer |
+| leg length | 30.2 — i.e. **1.162 x** the centreline radius |
+| centre dot | `r=4` at `y=37` — **0.154 x** R, sitting 2u below the springing line |
+| plumb dashes | `w=1.5` — **0.058 x** R |
+
+An earlier `2-blueprint` hand-drew its arch instead and got the legs 26% short
+(0.861 x R), the dot 4x too small and the dashes 5x too thin. The treatment
+looked right; the logo did not. Draw through `mark()` and that cannot recur.
+
+Only `0-arch` carries the lockup; `2-blueprint` uses a drawing title block
+instead. The other six are unsigned — a wordmark on every one reads as branding
+applied to wallpaper rather than wallpaper that is on-brand.
+
+Format is whichever encodes smaller per image (JPEG q92 for the dot field,
+PNG for the flat ones). Omarchy accepts both. The whole set is 3.1 MB.
+
+Regenerate with `backgrounds.py` (writes SVG; render at 5120x2880 with
 `rsvg-convert`), or drop your own into `~/.config/omarchy/backgrounds/archway/`.
 
 ## Branding
