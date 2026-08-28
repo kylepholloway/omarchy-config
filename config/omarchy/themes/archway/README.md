@@ -26,6 +26,7 @@ and Slate.
 | `btop.theme`        | meters follow ok→warn→crit; load follows the Signal ramp    |
 | `neovim.lua`        | tokyonight remapped onto Archway tokens (no new plugin)     |
 | `takeover/`         | assets the `theme-set` hook swaps in and out (see below)     |
+| `backgrounds.py`    | generator for all ten wallpapers                             |
 | `vscode.json`       | Tokyo Night as the nearest shipped VS Code base             |
 | `icons.theme`       | `Yaru-blue`                                                  |
 | `keyboard.rgb`      | Signal-400                                                   |
@@ -63,16 +64,32 @@ photography, no illustration, no glowing orbs — per `archway-brain/brand/DESIG
 
 | File            | What it is                                                       |
 |-----------------|------------------------------------------------------------------|
-| `0-arch`        | the mark at scale, standing on the canvas, echoed in hairlines   |
-| `1-canvas`      | a service graph with one path traced in Signal                   |
+| `0-arch`        | the mark at scale, echoed outward in construction hairlines      |
+| `1-moire`       | concentric arcs at two pitches — the banding is the beat between them |
 | `2-blueprint`   | the mark as a construction drawing — dimensions, tangents, ticks |
 | `3-signal`      | the arch resolving out of a dot field                            |
-| `4-journey`     | a checkout journey traced across four swimlanes                  |
+| `4-contour`     | the mark read as terrain — offset contours, every fifth indexed  |
 | `5-colonnade`   | an arcade of bays; one carries the signal                        |
 | `6-sunken`      | the quiet one — a hairline arch on Ink-975                       |
+| `7-orbit`       | an instrument dial around the mark — bearing ring and callouts   |
+| `8-dotwave`     | the dot field modulated by a standing wave from the keystone     |
+| `9-aperture`    | the mark rotated about its keystone into a rosette               |
 
-Regenerate them with the script kept alongside this theme's source, or drop
-your own into `~/.config/omarchy/backgrounds/archway/`.
+All ten are abstractions of the mark itself. No charts, no diagrams, and
+nothing sitting on top of a grid — a background competing with the windows in
+front of it is a background doing its job badly.
+
+Only four carry the name: `0-arch`, `5-colonnade` and `6-sunken` take the
+lockup, and `2-blueprint` takes a drawing-style title block instead. The other
+six are unsigned. A wordmark on every single one reads as branding applied to
+wallpaper rather than wallpaper that happens to be on-brand.
+
+Format is whichever encodes smaller per image — the dense line and dot fields
+go to JPEG q92 (visually identical here, and `1-moire` alone is 3.8 MB rather
+than 6.9 MB), the flatter compositions stay PNG. Omarchy accepts both.
+
+Regenerate them with `backgrounds.py` (writes SVG; render at 5120x2880 with
+`rsvg-convert`), or drop your own into `~/.config/omarchy/backgrounds/archway/`.
 
 ## Branding
 
