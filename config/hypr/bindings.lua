@@ -41,6 +41,7 @@ pcall(dofile, os.getenv("HOME") .. "/.config/omarchy/plugins/mmsbrggr.per-monito
 -- o.bind("SUPER + H", nil, "voxtype record toggle")
 -- o.bind("SUPER + PERIOD", nil, "omarchy-shell shell toggle omarchy.emojis")
 
--- Curated quick-launch menu (see ~/.config/omarchy/extensions/omarchy-menu.jsonc).
--- SUPER + SPACE stays the full app list; this is the short list of favorites.
-o.bind("SUPER + ALT + SPACE", "Favorites", "omarchy menu summon favorites")
+-- Favorite Apps: replace Omarchy's default "Apps menu" (the full list) with a
+-- curated overlay. SUPER + SPACE is left completely stock.
+hl.unbind("SUPER + ALT + SPACE")
+o.bind("SUPER + ALT + SPACE", "Favorite Apps", "omarchy-shell shell toggle kylepholloway.favorites")
