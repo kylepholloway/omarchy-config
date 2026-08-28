@@ -1,30 +1,62 @@
 {
-  // Extend the Quickshell Omarchy menu with JSONC.
+  // ───────────────────────────────────────────────────────────────────────
+  //  Curated quick-launch menu — bound to SUPER + ALT + SPACE
   //
-  // IDs are object keys. The parent is inferred from the dotted id, so
-  // "personal.notes" appears under "personal", and "personal" appears on the
-  // root menu. Reuse an existing id to override/extend it.
+  //  SUPER + SPACE       → Apps  (everything, provider-driven, untouched)
+  //  SUPER + ALT + SPACE → Favorites (this list)
+  //  ~/Applications      → every app, browsable in the file manager
   //
-  // Fields:
-  //   icon        Nerd Font glyph shown in the icon column.
-  //   label       Visible row title.
-  //   action      Shell command to run. If omitted, the row is a submenu.
-  //   target      Existing submenu id to open. Use for links/aliases.
-  //   provider    Runtime provider function/command returning JSON rows.
-  //   aliases     alternate `omarchy menu summon <name>` routes; also searchable.
-  //   description Optional subtitle and extra search text.
-  //   when        Shell condition; hide row when it fails.
-  //   checked     Shell condition; append ✓ when it succeeds.
+  //  Apps deliberately NOT here: system utilities (Disks, Print Settings,
+  //  Aether, Voxtype config) and file-association viewers (imv, Evince) —
+  //  those open by clicking a file, not by name.
   //
-  // Examples:
-  // "personal": {"icon":"","label":"Personal"},
-  // "personal.notes": {"icon":"󰎞","label":"Notes","action":"omarchy-launch-editor ~/notes"},
-  // "personal.files": {"icon":"","label":"Files","action":"uwsm-app -- nautilus ~/Documents"},
-  //
-  // Only use provider when a provider_name function or command named "name"
-  // returns JSON rows. Static submenus only need dotted ids.
-  //
-  // Example: replace the default About action by reusing the same id. Existing
-  // fields are kept unless overridden.
-  // "about": {"icon":"","label":"About","action":"omarchy-launch-or-focus-tui \"zsh -c 'fastfetch; read -k 1'\""},
+  //  Regenerate ~/Applications after installing anything:
+  //    ~/Work/omarchy-config/scripts/build-applications-dir.sh
+  // ───────────────────────────────────────────────────────────────────────
+
+  "favorites": {
+    "icon": "󱓞",
+    "label": "Favorites",
+    "aliases": ["fav", "favourites", "quick", "launch", "dock"],
+    "description": "Curated quick-launch for apps you actually use"
+  },
+
+  // ── Daily drivers ──────────────────────────────────────────────────────
+  "favorites.ghostty":  {"icon":"","label":"Ghostty",       "action":"uwsm-app -- gtk-launch com.mitchellh.ghostty.desktop"},
+  "favorites.chromium": {"icon":"","label":"Chromium",      "action":"uwsm-app -- gtk-launch chromium.desktop"},
+  "favorites.files":    {"icon":"","label":"Files",         "action":"uwsm-app -- gtk-launch org.gnome.Nautilus.desktop"},
+  "favorites.nvim":     {"icon":"","label":"Neovim",        "action":"uwsm-app -- gtk-launch nvim.desktop"},
+  "favorites.obsidian": {"icon":"󱞁","label":"Obsidian",      "action":"uwsm-app -- gtk-launch obsidian.desktop"},
+
+  // ── Comms & media ──────────────────────────────────────────────────────
+  "favorites.discord":  {"icon":"","label":"Discord",       "action":"uwsm-app -- gtk-launch Discord.desktop"},
+  "favorites.zoom":     {"icon":"","label":"Zoom",          "action":"uwsm-app -- gtk-launch Zoom.desktop"},
+  "favorites.youtube":  {"icon":"","label":"YouTube",       "action":"uwsm-app -- gtk-launch YouTube.desktop"},
+  "favorites.music":    {"icon":"","label":"Apple Music",   "action":"omarchy-shell shell toggle melonamin.apple-music"},
+  "favorites.mpv":      {"icon":"","label":"Media Player",  "action":"uwsm-app -- gtk-launch mpv.desktop"},
+
+  // ── Games ──────────────────────────────────────────────────────────────
+  "favorites.runelite": {"icon":"󰊗","label":"RuneLite",      "action":"uwsm-app -- gtk-launch runelite.desktop"},
+  "favorites.bolt":     {"icon":"󰊗","label":"Bolt Launcher", "action":"uwsm-app -- gtk-launch bolt-launcher.desktop"},
+
+  // ── Work & office ──────────────────────────────────────────────────────
+  "favorites.docker":   {"icon":"","label":"Docker",        "action":"uwsm-app -- gtk-launch Docker.desktop"},
+  "favorites.writer":   {"icon":"","label":"Writer",        "action":"uwsm-app -- gtk-launch libreoffice-writer.desktop"},
+  "favorites.calc":     {"icon":"","label":"Calc",          "action":"uwsm-app -- gtk-launch libreoffice-calc.desktop"},
+  "favorites.impress":  {"icon":"","label":"Impress",       "action":"uwsm-app -- gtk-launch libreoffice-impress.desktop"},
+  "favorites.omawrite": {"icon":"","label":"Omawrite",      "action":"uwsm-app -- gtk-launch omawrite.desktop"},
+  "favorites.xournal":  {"icon":"","label":"Xournal++",     "action":"uwsm-app -- gtk-launch com.github.xournalpp.xournalpp.desktop"},
+
+  // ── Creative ───────────────────────────────────────────────────────────
+  "favorites.pinta":    {"icon":"","label":"Pinta",         "action":"uwsm-app -- gtk-launch com.github.PintaProject.Pinta.desktop"},
+  "favorites.kdenlive": {"icon":"","label":"Kdenlive",      "action":"uwsm-app -- gtk-launch org.kde.kdenlive.desktop"},
+  "favorites.omacut":   {"icon":"","label":"Omacut",        "action":"uwsm-app -- gtk-launch omacut.desktop"},
+  "favorites.obs":      {"icon":"","label":"OBS Studio",    "action":"uwsm-app -- gtk-launch com.obsproject.Studio.desktop"},
+
+  // ── Utility ────────────────────────────────────────────────────────────
+  "favorites.localsend":{"icon":"󰩟","label":"LocalSend",     "action":"uwsm-app -- gtk-launch localsend.desktop"},
+
+  // ── Escape hatches ─────────────────────────────────────────────────────
+  "favorites.all":      {"icon":"󰀻","label":"All Applications…","description":"Every installed app","target":"apps"},
+  "favorites.folder":   {"icon":"","label":"Applications folder…","description":"Browse ~/Applications in Files","action":"uwsm-app -- nautilus ~/Applications"}
 }

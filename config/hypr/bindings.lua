@@ -40,3 +40,7 @@ pcall(dofile, os.getenv("HOME") .. "/.config/omarchy/plugins/mmsbrggr.per-monito
 -- o.bind("SUPER + SHIFT + S", nil, "omarchy-capture-screenshot")
 -- o.bind("SUPER + H", nil, "voxtype record toggle")
 -- o.bind("SUPER + PERIOD", nil, "omarchy-shell shell toggle omarchy.emojis")
+
+-- Curated quick-launch menu (see ~/.config/omarchy/extensions/omarchy-menu.jsonc).
+-- SUPER + SPACE stays the full app list; this is the short list of favorites.
+o.bind("SUPER + ALT + SPACE", "Favorites", "omarchy menu summon favorites")
