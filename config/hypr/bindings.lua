@@ -41,10 +41,6 @@ pcall(dofile, os.getenv("HOME") .. "/.config/omarchy/plugins/mmsbrggr.per-monito
 -- o.bind("SUPER + H", nil, "voxtype record toggle")
 -- o.bind("SUPER + PERIOD", nil, "omarchy-shell shell toggle omarchy.emojis")
 
--- Switchboard: live window overview across all workspaces (Mission Control).
--- https://github.com/thebenwalther/omarchy-switchboard
-o.bind("SUPER + SHIFT + code:51", "Switchboard: window overview", "omarchy-shell -q switchboard toggle")
-
 -- ── Reclaim bindings for web apps that were removed ────────────────────────
 -- Omarchy binds these to preinstalled web apps; those apps are uninstalled, so
 -- the keys did nothing.
