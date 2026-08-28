@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Gmail — Personal
+Comment=Gmail — Personal
+Exec=omarchy-launch-webapp https://mail.google.com/mail/u/0/
+Terminal=false
+Type=Application
+Icon=gmail
+StartupNotify=true

@@ -51,6 +51,14 @@ while IFS= read -r -d '' f; do
   link "$f" "$HOME/.config/${f#"$REPO/config/"}"
 done < <(find "$REPO/config" -type f -print0)
 
+if [[ -d "$REPO/local/icons" ]]; then
+  say "Linking ~/.local/share/icons"
+  while IFS= read -r -d '' f; do
+    link "$f" "$HOME/.local/share/icons/${f#"$REPO/local/icons/"}"
+  done < <(find "$REPO/local/icons" -type f -print0)
+  gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
+fi
+
 say "Linking ~/.local/share/applications"
 while IFS= read -r -d '' f; do
   link "$f" "$HOME/.local/share/applications/$(basename "$f")"
