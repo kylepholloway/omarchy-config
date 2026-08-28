@@ -109,7 +109,6 @@ omarchy-settings
 omawrite
 pacman-contrib
 pamixer
-pinta
 pipewire
 pipewire-alsa
 pipewire-jack
