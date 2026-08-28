@@ -1,8 +1,5 @@
-bluemail
 bolt-launcher
-davmail
 flyline
-mailspring-bin
 runelite
 slack-desktop
 zoom

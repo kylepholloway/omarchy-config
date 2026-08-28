@@ -29,8 +29,6 @@ dua-cli
 efibootmgr
 electron41
 evince
-evolution
-evolution-ews
 exfatprogs
 expac
 eza

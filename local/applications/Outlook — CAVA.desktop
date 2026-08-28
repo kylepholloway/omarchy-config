@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Name=Outlook — CAVA
-Comment=Outlook — CAVA
-Exec=omarchy-launch-webapp https://outlook.office.com/mail/ --profile-directory=CAVA
-Terminal=false
-Type=Application
-Icon=microsoft-outlook
-StartupNotify=true

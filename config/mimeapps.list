@@ -6,7 +6,7 @@ x-scheme-handler/about=chromium.desktop
 x-scheme-handler/unknown=chromium.desktop
 x-scheme-handler/claude-cli=claude-code-url-handler.desktop
 x-scheme-handler/discord-409416265891971072=discord-409416265891971072.desktop
-x-scheme-handler/mailto=Mailspring.desktop
+x-scheme-handler/mailto=Gmail — Personal.desktop
 x-scheme-handler/slack=slack.desktop
 x-scheme-handler/mailspring=Mailspring.desktop
 

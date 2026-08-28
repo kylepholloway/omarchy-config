@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Name=Outlook — Rockefeller
-Comment=Outlook — Rockefeller
-Exec=omarchy-launch-webapp https://outlook.office.com/mail/ --profile-directory=Rockefeller
-Terminal=false
-Type=Application
-Icon=microsoft-outlook
-StartupNotify=true
