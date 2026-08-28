@@ -1,7 +1,7 @@
 # omarchy-config
 
 <!-- LAST-UPDATED -->
-**Last captured:** 2026-08-28 14:21 MDT
+**Last captured:** 2026-08-28 14:51 MDT
 
 My [Omarchy](https://omarchy.org/) configuration — everything on this machine that
 differs from a stock Omarchy install.

@@ -27,6 +27,7 @@ dosfstools
 dotnet-runtime
 dua-cli
 efibootmgr
+electron41
 evince
 evolution
 evolution-ews
@@ -138,6 +139,7 @@ tensaku
 tesseract
 tesseract-data-eng
 thermald
+tidy
 tldr
 tmux
 tobi-try
