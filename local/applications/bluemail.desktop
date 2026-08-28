@@ -8,8 +8,12 @@ Comment=Email and calendar for multiple accounts
 Exec=bluemail --password-store=gnome-libsecret %U
 Icon=bluemail
 Type=Application
-Categories=Network;Email;Office;Calendar;
+Terminal=false
+Categories=Office;Network;Email;
 Keywords=email;mail;calendar;
-MimeType=x-scheme-handler/mailto;
+# Must match the packaged entry exactly: this file shadows it by name, so any
+# scheme left out here loses its handler. me.blueone.linux is the OAuth
+# callback — dropping it breaks Google and Microsoft sign-in.
+MimeType=x-scheme-handler/me.blueone.linux;x-scheme-handler/mailto;x-scheme-handler/bluemail-notif;x-scheme-handler/bluemail;
 StartupNotify=true
 StartupWMClass=BlueMail
