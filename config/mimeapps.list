@@ -1,4 +1,3 @@
-
 [Default Applications]
 text/html=chromium.desktop
 x-scheme-handler/http=chromium.desktop
@@ -8,3 +7,7 @@ x-scheme-handler/unknown=chromium.desktop
 x-scheme-handler/claude-cli=claude-code-url-handler.desktop
 x-scheme-handler/discord-409416265891971072=discord-409416265891971072.desktop
 x-scheme-handler/mailto=org.gnome.Evolution.desktop
+x-scheme-handler/slack=slack.desktop
+
+[Added Associations]
+x-scheme-handler/slack=slack.desktop;
