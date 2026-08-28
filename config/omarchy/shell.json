@@ -16,6 +16,9 @@
         {
           "id": "mmsbrggr.per-monitor-workspaces",
           "count": 4
+        },
+        {
+          "id": "io.github.monswiklund.workspace-presets"
         }
       ],
       "center": [

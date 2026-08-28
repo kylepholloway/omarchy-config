@@ -1,3 +1,4 @@
 https://github.com/krall12/omarchy-switchboard.git
 https://github.com/melonamin/omarchy-apple-music.git
 https://github.com/mmsbrggr/omarchy-per-monitor-workspaces.git
+https://github.com/monswiklund/omarchy-workspace-presets.git
