@@ -4,12 +4,14 @@
 -- thing against a raised surface. The same idea, at window scale: the
 -- focused window is bordered in Signal (400 → 600, the accent's own ramp,
 -- never a purple-to-blue gradient), everything else falls back to Ink.
+--
+-- Border only, no shadow. That is what 21 of Omarchy's 22 stock themes do,
+-- and Omarchy's default looknfeel sets shadow.enabled = false — so this file
+-- stays silent on shadows and lets that default stand.
 
 -- Hyprland takes a gradient as a table, not a "a b 135deg" string.
 local active_border_color = { colors = { "rgba(6b8afdff)", "rgba(3b5bdbff)" }, angle = 135 }
 local inactive_border_color = "rgba(283044aa)"
-local active_shadow_color = "rgba(6b8afd22)"
-local inactive_shadow_color = "rgba(07090d44)"
 
 hl.config({
   general = {
@@ -30,18 +32,6 @@ hl.config({
         active = "rgba(6b8afdff)",
         inactive = "rgba(161c26ff)",
       },
-    },
-  },
-
-  decoration = {
-    -- Motion and depth reveal, never decorate. The shadow says "this one
-    -- is in front"; it says nothing else.
-    shadow = {
-      enabled = true,
-      range = 12,
-      render_power = 3,
-      color = active_shadow_color,
-      color_inactive = inactive_shadow_color,
     },
   },
 })

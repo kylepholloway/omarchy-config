@@ -21,7 +21,7 @@ and Slate.
 | File                | What it covers                                              |
 |---------------------|-------------------------------------------------------------|
 | `colors.toml`       | the palette every other config is generated from            |
-| `hyprland.lua`      | window borders, group bars, focus shadow                    |
+| `hyprland.lua`      | window borders and group bars — border only, no shadow      |
 | `shell.toml`        | bar, menus, launcher, notifications, polkit, lock screen    |
 | `btop.theme`        | meters follow ok→warn→crit; load follows the Signal ramp    |
 | `neovim.lua`        | tokyonight remapped onto Archway tokens (no new plugin)     |
