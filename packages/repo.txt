@@ -131,6 +131,7 @@ sddm
 slurp
 socat
 sof-firmware
+squashfs-tools
 starship
 sudo
 sushi
