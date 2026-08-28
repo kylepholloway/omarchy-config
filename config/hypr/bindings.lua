@@ -41,7 +41,6 @@ pcall(dofile, os.getenv("HOME") .. "/.config/omarchy/plugins/mmsbrggr.per-monito
 -- o.bind("SUPER + H", nil, "voxtype record toggle")
 -- o.bind("SUPER + PERIOD", nil, "omarchy-shell shell toggle omarchy.emojis")
 
--- Favorite Apps: replace Omarchy's default "Apps menu" (the full list) with a
--- curated overlay. SUPER + SPACE is left completely stock.
-hl.unbind("SUPER + ALT + SPACE")
-o.bind("SUPER + ALT + SPACE", "Favorite Apps", "omarchy-shell shell toggle kylepholloway.favorites")
+-- Switchboard: live window overview across all workspaces (Mission Control).
+-- https://github.com/thebenwalther/omarchy-switchboard
+o.bind("SUPER + SHIFT + code:51", "Switchboard: window overview", "omarchy-shell -q switchboard toggle")
