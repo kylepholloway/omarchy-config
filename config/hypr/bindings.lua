@@ -44,3 +44,19 @@ pcall(dofile, os.getenv("HOME") .. "/.config/omarchy/plugins/mmsbrggr.per-monito
 -- Switchboard: live window overview across all workspaces (Mission Control).
 -- https://github.com/thebenwalther/omarchy-switchboard
 o.bind("SUPER + SHIFT + code:51", "Switchboard: window overview", "omarchy-shell -q switchboard toggle")
+
+-- ── Reclaim bindings for web apps that were removed ────────────────────────
+-- Omarchy binds these to preinstalled web apps; those apps are uninstalled, so
+-- the keys did nothing.
+hl.unbind("SUPER + SHIFT + S")        -- was Google Maps
+hl.unbind("SUPER + SHIFT + P")        -- was Google Photos
+hl.unbind("SUPER + SHIFT + X")        -- was X
+hl.unbind("SUPER + SHIFT + CTRL + G") -- was Google Messages
+hl.unbind("SUPER + SHIFT + ALT + G")  -- was WhatsApp
+
+-- ── Screenshots without a Print key ────────────────────────────────────────
+-- This keyboard has no Print key, so Omarchy's PRINT-based capture bindings are
+-- unreachable. These mirror macOS: region select is the one you actually use.
+o.bind("SUPER + SHIFT + 5", "Screenshot (region)", "omarchy capture screenshot region")
+o.bind("SUPER + SHIFT + S", "Screenshot (region)", "omarchy capture screenshot region")
+o.bind("SUPER + SHIFT + P", "Screenshot (window)", "omarchy capture screenshot windows")
