@@ -29,6 +29,8 @@ dua-cli
 efibootmgr
 electron41
 evince
+evolution
+evolution-ews
 exfatprogs
 expac
 eza
@@ -67,7 +69,6 @@ intel-ucode
 inxi
 jq
 jre17-openjdk
-kdenlive
 kernel-modules-hook
 lazydocker
 lazygit
@@ -164,7 +165,6 @@ wtype
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
 xdg-terminal-exec
-xournalpp
 yaru-icon-theme
 yay
 yt-dlp

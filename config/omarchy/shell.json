@@ -42,7 +42,10 @@
       ],
       "right": [
         {
-          "id": "omarchy.tray"
+          "id": "kph.tray"
+        },
+        {
+          "id": "jankeesvw.notification-center"
         },
         {
           "id": "melonamin.apple-music"

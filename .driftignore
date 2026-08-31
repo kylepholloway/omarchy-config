@@ -9,3 +9,7 @@ lazygit/config.yml
 fastfetch/config.jsonc
 omarchy/branding/screensaver.txt
 omarchy/branding/about.txt
+
+# Residual application state from Xournal++ after the application was removed.
+# This is neither a portable preference nor an intentional Omarchy override.
+xournalpp/settings.xml

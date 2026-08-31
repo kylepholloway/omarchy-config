@@ -1,7 +1,7 @@
 # omarchy-config
 
 <!-- LAST-UPDATED -->
-**Last captured:** 2026-08-28 15:40 MDT
+**Last captured:** 2026-08-31 11:00 MDT
 
 My [Omarchy](https://omarchy.org/) configuration — everything on this machine that
 differs from a stock Omarchy install.
@@ -31,7 +31,7 @@ Flags: `--no-packages`, `--no-plugins`, `--help`.
 
 | Path | What |
 |---|---|
-| `config/` | Symlinked into `~/.config/` |
+| `config/` | Symlinked into `~/.config/`, including the local Slack-normalized tray plugin |
 | `local/applications/` | Web app + handler `.desktop` entries → `~/.local/share/applications/` |
 | `machines/<name>/` | Machine-specific config, applied only when named on the command line |
 | `packages/repo.txt` | `pacman -Qqen` — explicitly installed repo packages |
@@ -101,7 +101,9 @@ Restoring these is manual, by design:
 
 ## Notes
 
-- Omarchy plugins are cloned from their upstream git URLs rather than vendored, so they
-  update independently via `omarchy plugin update`.
+- Third-party Omarchy plugins are cloned from their upstream git URLs, so they update
+  independently via `omarchy plugin update`. The customized `kph.tray` plugin is
+  vendored under `config/omarchy/plugins/` because it is a local clone of Omarchy's
+  built-in tray rather than a standalone upstream repository.
 - `omarchy install preinstalls` restores the stock Omarchy app set if you ever want the
   removed defaults back.

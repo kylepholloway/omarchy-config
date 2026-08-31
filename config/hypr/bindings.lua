@@ -56,3 +56,12 @@ hl.unbind("SUPER + SHIFT + ALT + G")  -- was WhatsApp
 o.bind("SUPER + SHIFT + 5", "Screenshot (region)", "omarchy capture screenshot region")
 o.bind("SUPER + SHIFT + S", "Screenshot (region)", "omarchy capture screenshot region")
 o.bind("SUPER + SHIFT + P", "Screenshot (window)", "omarchy capture screenshot windows")
+
+-- ── Notification center ────────────────────────────────────────────────────
+-- jankeesvw.notification-center archives every notification into a readable
+-- panel. Omarchy's built-in history keeps only the last 10 and replays them as
+-- toasts, so its key now opens the real thing instead.
+o.bind("SUPER + N", "Notification center", "omarchy-shell shell toggle jankeesvw.notification-center")
+hl.unbind("SUPER + SHIFT + ALT + comma")
+o.bind("SUPER + SHIFT + ALT + comma", "Notification center",
+  "omarchy-shell shell toggle jankeesvw.notification-center")
