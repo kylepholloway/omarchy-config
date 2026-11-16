@@ -1,0 +1,8 @@
+[Unit]
+Description=Merge Chrome profile calendars into ~/.cache/cal-sync/events.json
+After=network-online.target
+
+[Service]
+Type=oneshot
+Environment=PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin
+ExecStart=%h/.local/bin/cal-sync

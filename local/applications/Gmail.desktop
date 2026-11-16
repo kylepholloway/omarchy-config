@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Gmail
+Comment=Gmail
+Exec=webapp-profile gmail
+Terminal=false
+Type=Application
+Icon=gmail
+StartupNotify=true

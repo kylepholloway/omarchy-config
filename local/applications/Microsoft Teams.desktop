@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Microsoft Teams
+Comment=Microsoft Teams
+Exec=webapp-profile teams
+Terminal=false
+Type=Application
+Icon=microsoft-teams
+StartupNotify=true

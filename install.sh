@@ -59,6 +59,13 @@ if [[ -d "$REPO/local/icons" ]]; then
   gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
 fi
 
+if [[ -d "$REPO/local/bin" ]]; then
+  say "Linking ~/.local/bin"
+  while IFS= read -r -d '' f; do
+    link "$f" "$HOME/.local/bin/$(basename "$f")"
+  done < <(find "$REPO/local/bin" -type f -print0)
+fi
+
 say "Linking ~/.local/share/applications"
 while IFS= read -r -d '' f; do
   link "$f" "$HOME/.local/share/applications/$(basename "$f")"

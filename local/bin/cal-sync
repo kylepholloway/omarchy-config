@@ -1,0 +1,140 @@
+#!/usr/bin/env -S uv run --quiet --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["icalendar>=6", "recurring-ical-events>=3"]
+# ///
+"""Merge every Chrome profile's calendar into one local agenda.
+
+Reads ~/.config/cal-sync/feeds.conf ("Profile = https://...ics" lines), expands
+recurring events for the next two weeks, finds each event's meeting link
+(Zoom, Google Meet, Teams, Webex) and writes ~/.cache/cal-sync/events.json.
+Runs every few minutes from cal-sync.timer. Nothing leaves this machine.
+"""
+
+import datetime as dt
+import json
+import os
+import re
+import sys
+import urllib.request
+from pathlib import Path
+
+import icalendar
+import recurring_ical_events
+
+FEEDS = Path.home() / ".config/cal-sync/feeds.conf"
+OUT = Path.home() / ".cache/cal-sync/events.json"
+PAST = dt.timedelta(hours=12)
+AHEAD = dt.timedelta(days=14)
+
+JOIN_PATTERNS = [
+    ("zoom", re.compile(r"https://[\w.-]*zoom\.us/(?:j|w|my|wc/join)/[^\s<>\"')\]]+", re.I)),
+    ("meet", re.compile(r"https://meet\.google\.com/[a-z]{3,4}-[a-z]{3,4}-[a-z]{3,4}", re.I)),
+    ("teams", re.compile(r"https://teams\.(?:microsoft|live)\.com/(?:l/meetup-join|meet)/[^\s<>\"')\]]+", re.I)),
+    ("webex", re.compile(r"https://[\w.-]*webex\.com/[^\s<>\"')\]]+", re.I)),
+]
+
+
+def read_feeds():
+    feeds = []
+    if not FEEDS.exists():
+        return feeds
+    for line in FEEDS.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        profile, url = (part.strip() for part in line.split("=", 1))
+        if url:
+            feeds.append((profile, url.replace("webcal://", "https://", 1)))
+    return feeds
+
+
+def fetch(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "cal-sync/1.0"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return resp.read()
+
+
+def as_local(value):
+    """Event times as aware local datetimes; all-day dates become local midnight."""
+    if isinstance(value, dt.datetime):
+        if value.tzinfo is None:
+            value = value.astimezone()
+        return value.astimezone(), False
+    return dt.datetime.combine(value, dt.time()).astimezone(), True
+
+
+def find_join(event):
+    fields = [str(event.get(k, "")) for k in ("X-GOOGLE-CONFERENCE", "LOCATION", "URL", "DESCRIPTION", "X-ALT-DESC")]
+    text = "\n".join(fields)
+    for kind, pattern in JOIN_PATTERNS:
+        match = pattern.search(text)
+        if match:
+            return kind, match.group(0).rstrip(".,;")
+    return None, None
+
+
+def events_for(profile, raw, now):
+    cal = icalendar.Calendar.from_ical(raw)
+    cal_name = str(cal.get("X-WR-CALNAME", profile))
+    out = []
+    for ev in recurring_ical_events.of(cal).between(now - PAST, now + AHEAD):
+        title = str(ev.get("SUMMARY", "(no title)")).strip()
+        status = str(ev.get("STATUS", "")).upper()
+        if status == "CANCELLED" or re.match(r"^(canceled|cancelled):", title, re.I):
+            continue
+        if str(ev.get("TRANSP", "")).upper() == "TRANSPARENT" and not find_join(ev)[1]:
+            continue  # "free" blocks with no meeting (holidays, reminders)
+        start, all_day = as_local(ev["DTSTART"].dt)
+        end_prop = ev.get("DTEND")
+        end = as_local(end_prop.dt)[0] if end_prop else start + (dt.timedelta(days=1) if all_day else dt.timedelta(hours=1))
+        kind, url = find_join(ev)
+        out.append({
+            "profile": profile,
+            "calendar": cal_name,
+            "title": title,
+            "start": start.isoformat(),
+            "end": end.isoformat(),
+            "allDay": all_day,
+            "location": str(ev.get("LOCATION", "")).strip(),
+            "joinKind": kind,
+            "joinUrl": url,
+        })
+    return out
+
+
+def main():
+    now = dt.datetime.now().astimezone()
+    previous = {}
+    if OUT.exists():
+        try:
+            for e in json.loads(OUT.read_text()).get("events", []):
+                previous.setdefault(e["profile"], []).append(e)
+        except (ValueError, KeyError):
+            pass
+
+    events, errors, by_profile = [], {}, {}
+    for profile, url in read_feeds():
+        try:
+            got = events_for(profile, fetch(url), now)
+            by_profile.setdefault(profile, []).extend(got)
+        except Exception as exc:  # keep the last good copy when a feed is down
+            errors[profile] = f"{type(exc).__name__}: {exc}"[:200]
+            by_profile.setdefault(profile, previous.get(profile, []))
+    for evs in by_profile.values():
+        events.extend(evs)
+    events.sort(key=lambda e: (e["start"], e["profile"]))
+
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    tmp = OUT.with_suffix(".tmp")
+    tmp.write_text(json.dumps({"updated": now.isoformat(), "errors": errors, "events": events}, indent=1))
+    os.chmod(tmp, 0o600)
+    tmp.replace(OUT)
+
+    counts = {p: len(v) for p, v in by_profile.items()}
+    print(f"cal-sync: {len(events)} events {counts}" + (f" errors={list(errors)}" if errors else ""))
+    return 1 if errors and not events else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

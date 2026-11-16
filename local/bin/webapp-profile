@@ -1,0 +1,91 @@
+#!/bin/bash
+# Open a web app (or a plain browser window) in a specific Chrome profile.
+#
+#   webapp-profile <app> [profile]     e.g. webapp-profile outlook CAVA
+#   webapp-profile zoom-join <url>     zoommtg:// or https://*.zoom.us link
+#   webapp-profile join <profile> <url>  open a meeting link in that profile
+#
+# With no profile, apps used by one profile open straight away; otherwise an
+# Omarchy picker asks which account to use.
+
+set -euo pipefail
+
+# Profile label -> Chrome profile directory (~/.config/google-chrome/<dir>)
+declare -A PROFILE_DIR=(
+  [Personal]="Default"
+  [Archway]="Profile 1"
+  [CAVA]="Profile 2"
+  [TRF]="Profile 3"
+)
+PROFILE_ORDER=(Personal Archway CAVA TRF)
+
+# Zoom links on a company's vanity domain go straight to that profile.
+# Add entries like [cava.zoom.us]=CAVA as they turn up.
+declare -A ZOOM_DOMAIN=()
+
+# app -> "url|profiles allowed (space separated)"
+declare -A APPS=(
+  [zoom]="https://app.zoom.us/wc/home|Personal Archway CAVA TRF"
+  [gmail]="https://mail.google.com/|Personal Archway"
+  [gcal]="https://calendar.google.com/|Personal Archway"
+  [outlook]="https://outlook.office.com/mail/|CAVA TRF"
+  [outlook-cal]="https://outlook.office.com/calendar/|CAVA TRF"
+  [teams]="https://teams.cloud.microsoft/|CAVA TRF"
+  [browser]="|Personal Archway CAVA TRF"
+)
+
+pick_profile() { # prompt, allowed profiles...
+  local prompt=$1; shift
+  if (( $# == 1 )); then echo "$1"; return; fi
+  omarchy-menu-select "$prompt" "$@" -- --width 360
+}
+
+open_in_profile() { # profile, url (empty url = normal browser window)
+  local dir=${PROFILE_DIR[$1]:?unknown profile: $1}
+  if [[ -z $2 ]]; then
+    exec omarchy-launch-browser --profile-directory="$dir"
+  fi
+  exec omarchy-launch-webapp "$2" --profile-directory="$dir"
+}
+
+zoom_web_url() { # turn a Zoom link into a web-client join URL
+  local url=$1 confno pwd
+  if [[ $url =~ ^zoom(mtg|us):// ]]; then
+    confno=$(sed -n 's/.*[?&]confno=\([^&]*\).*/\1/p' <<<"$url")
+  else
+    confno=$(sed -n 's|.*/[jw]/\([0-9]*\).*|\1|p' <<<"$url")
+  fi
+  pwd=$(sed -n 's/.*[?&]pwd=\([^&]*\).*/\1/p' <<<"$url")
+  if [[ -z $confno ]]; then echo "https://app.zoom.us/wc/home"; return; fi
+  echo "https://app.zoom.us/wc/join/$confno${pwd:+?pwd=$pwd}"
+}
+
+app=${1:-}
+case $app in
+join) # join <profile> <meeting url>: open a calendar meeting in the calendar's own profile
+  profile=${2:?profile}; link=${3:?url}
+  case $link in
+  *zoom.us/*) open_in_profile "$profile" "$(zoom_web_url "$link")" ;;
+  *) open_in_profile "$profile" "$link" ;; # Meet, Teams, Webex run as app windows in that profile
+  esac
+  ;;
+zoom-join)
+  link=${2:-}
+  host=$(sed -E 's|^[a-z]+://([^/?]+).*|\1|' <<<"$link")
+  profile=${ZOOM_DOMAIN[$host]:-}
+  [[ -n $profile ]] || profile=$(pick_profile "Join Zoom as" "${PROFILE_ORDER[@]}") || exit 0
+  open_in_profile "$profile" "$(zoom_web_url "$link")"
+  ;;
+"" | -h | --help)
+  echo "Usage: webapp-profile <${!APPS[*]}> [profile]   |   webapp-profile zoom-join <url>"
+  echo "Profiles: ${PROFILE_ORDER[*]}"
+  exit 0
+  ;;
+esac
+
+entry=${APPS[$app]:?unknown app: $app}
+url=${entry%%|*}
+read -ra allowed <<<"${entry#*|}"
+profile=${2:-}
+[[ -n $profile ]] || profile=$(pick_profile "Open as" "${allowed[@]}") || exit 0
+open_in_profile "$profile" "$url"

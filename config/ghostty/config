@@ -25,8 +25,6 @@ shell-integration-features = no-cursor,ssh-env
 # Keyboard bindings
 keybind = shift+insert=paste_from_clipboard
 keybind = control+insert=copy_to_clipboard
-# Send Super+A as Ctrl+A; Flyline maps Ctrl+A to select the editable command.
-keybind = super+a=text:\x01
 # Send Shift+Enter as CSI-u so TUIs can distinguish it from Enter.
 keybind = shift+enter=csi:13;2u
 # Legacy encoding sends Alt+Shift+Enter the same as Alt+Enter; send CSI-u so tmux can match M-S-Enter.
@@ -39,9 +37,8 @@ keybind = super+control+shift+alt+arrow_right=resize_split:right,100
 # Slowdown mouse scrolling
 mouse-scroll-multiplier = 0.95
 
-# Flyline owns prompt clicks so the behavior also works through Herdr.
-# Ghostty's native click-to-move must be off to avoid duplicate mouse events.
-cursor-click-to-move = false
-
 # Fix general slowness on hyprland (https://github.com/ghostty-org/ghostty/discussions/3224)
 async-backend = epoll
+
+# Kyle's preferences (from the Mac). Last, so they win.
+config-file = ?"~/.config/ghostty/kyle.conf"

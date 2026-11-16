@@ -18,3 +18,6 @@ id_*
 known_hosts
 .netrc
 **/gh/hosts.yml
+
+# Private calendar feed addresses (cal-sync)
+cal-sync/feeds.conf

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Chrome Profile
+Comment=Chrome Profile
+Exec=webapp-profile browser
+Terminal=false
+Type=Application
+Icon=google-chrome
+StartupNotify=true

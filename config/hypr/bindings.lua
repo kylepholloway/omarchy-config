@@ -1,5 +1,5 @@
--- Keep only your personal keybinding overrides here. Add new bindings or
--- unbind defaults before replacing them.
+-- Keep only your personal keybinding overrides here. Add new bindings with
+-- o.bind or replace defaults with o.rebind.
 
 -- See current bindings and descriptions:
 --   omarchy menu keybindings --print
@@ -15,53 +15,40 @@
 -- Add a new binding.
 -- o.bind("SUPER + SHIFT + R", "SSH", "alacritty -e ssh your-server")
 
--- Change an existing binding by unbinding it first, then binding the key again.
--- This example changes SUPER+SPACE from the launcher to the Omarchy root menu.
--- hl.unbind("SUPER + SPACE")
--- o.bind("SUPER + SPACE", "Omarchy menu", "omarchy-menu toggle root")
+-- Change an existing binding. o.rebind takes the same arguments as o.bind.
+-- This example replaces the default file manager with Flea.
+-- o.rebind("SUPER + SHIFT + F", "File manager", { launch = "flea" })
 
 -- Disable a default binding without replacing it.
 -- hl.unbind("SUPER + SHIFT + B")
 
--- Start Herdr at the root containing the local code repositories. Panes and
--- tabs created inside Herdr still follow the active project's directory.
-hl.unbind("SUPER + CTRL + RETURN")
-o.bind(
-  "SUPER + CTRL + RETURN",
-  "Herdr (~/Work)",
-  "setsid uwsm-app -- xdg-terminal-exec --dir=/home/kph/Work herdr"
-)
-
--- Keep workspace numbers local to the focused monitor and match each
--- monitor's independent workspace bar.
-pcall(dofile, os.getenv("HOME") .. "/.config/omarchy/plugins/mmsbrggr.per-monitor-workspaces/hypr/init.lua")
-
 -- Logitech MX Keys examples:
--- o.bind("SUPER + SHIFT + S", nil, "omarchy-capture-screenshot")
 -- o.bind("SUPER + H", nil, "voxtype record toggle")
--- o.bind("SUPER + PERIOD", nil, "omarchy-shell shell toggle omarchy.emojis")
+-- o.bind("SUPER + PERIOD", nil, { panel = "omarchy.emojis" })
 
--- ── Reclaim bindings for web apps that were removed ────────────────────────
--- Omarchy binds these to preinstalled web apps; those apps are uninstalled, so
--- the keys did nothing.
-hl.unbind("SUPER + SHIFT + S")        -- was Google Maps
-hl.unbind("SUPER + SHIFT + P")        -- was Google Photos
-hl.unbind("SUPER + SHIFT + X")        -- was X
-hl.unbind("SUPER + SHIFT + CTRL + G") -- was Google Messages
-hl.unbind("SUPER + SHIFT + ALT + G")  -- was WhatsApp
+-- ── Web apps removed November 16, 2026 ─────────────────────────────────────
+-- Omarchy binds these to its preinstalled web apps; those apps are uninstalled,
+-- so the keys are freed rather than left doing nothing.
+hl.unbind("SUPER + SHIFT + C")        -- HEY Calendar
+hl.unbind("SUPER + SHIFT + E")        -- HEY Email
+hl.unbind("SUPER + SHIFT + ALT + E")  -- HEY New email
+hl.unbind("SUPER + SHIFT + ALT + G")  -- WhatsApp
+hl.unbind("SUPER + SHIFT + CTRL + G") -- Google Messages
+hl.unbind("SUPER + SHIFT + P")        -- Google Photos
+hl.unbind("SUPER + SHIFT + S")        -- Google Maps
+hl.unbind("SUPER + SHIFT + X")        -- X
+hl.unbind("SUPER + SHIFT + ALT + X")  -- X Post
 
--- ── Screenshots without a Print key ────────────────────────────────────────
--- This keyboard has no Print key, so Omarchy's PRINT-based capture bindings are
--- unreachable. These mirror macOS: region select is the one you actually use.
-o.bind("SUPER + SHIFT + 5", "Screenshot (region)", "omarchy capture screenshot region")
-o.bind("SUPER + SHIFT + S", "Screenshot (region)", "omarchy capture screenshot region")
-o.bind("SUPER + SHIFT + P", "Screenshot (window)", "omarchy capture screenshot windows")
+-- ── Herdr desktop app (November 16, 2026) ──────────────────────────────────
+-- Kyle uses the Herdr desktop app (herdr-app + herdr-core), not Herdr's terminal
+-- app. Focus its window if it is open, otherwise start it.
+o.rebind("SUPER + CTRL + RETURN", "Herdr", { focus = "herdr-app", launch = "/home/kyle/.local/bin/herdr-app" })
+hl.unbind("SUPER + CTRL + K")         -- cheat sheet for the Herdr terminal app
 
--- ── Notification center ────────────────────────────────────────────────────
--- jankeesvw.notification-center archives every notification into a readable
--- panel. Omarchy's built-in history keeps only the last 10 and replays them as
--- toasts, so its key now opens the real thing instead.
-o.bind("SUPER + N", "Notification center", "omarchy-shell shell toggle jankeesvw.notification-center")
-hl.unbind("SUPER + SHIFT + ALT + comma")
-o.bind("SUPER + SHIFT + ALT + comma", "Notification center",
-  "omarchy-shell shell toggle jankeesvw.notification-center")
+-- ── Screenshots, Mac-style (NuPhy Air75) ───────────────────────────────────
+-- Mac muscle memory: Cmd+Shift+4. Omarchy's smart mode is the closest match:
+-- drag a region, or click a window to take just that window (same as Print).
+-- Super+Shift+4 normally moves a window to workspace 4; Super+Shift+Alt+4 still
+-- moves it there (without following), then Super+4 to go along.
+o.rebind("SUPER + SHIFT + code:13", "Screenshot (Mac Cmd+Shift+4)", "omarchy-capture-screenshot")
+o.bind("SUPER + SHIFT + S", "Screenshot", "omarchy-capture-screenshot")

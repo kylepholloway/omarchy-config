@@ -6,32 +6,89 @@
   },
   "bar": {
     "position": "top",
-    "transparent": false,
-    "centerAnchor": "omarchy.clock",
+    "background": "opaque",
     "layout": {
       "left": [
         {
-          "id": "krall.switchboard"
+          "id": "omarchy.menu"
         },
         {
-          "id": "mmsbrggr.per-monitor-workspaces",
-          "count": 4
+          "id": "omarchy.workspaces"
+        }
+      ],
+      "centerBegin": [
+        {
+          "id": "omarchy.indicators"
         }
       ],
       "center": [
         {
-          "id": "omarchy.indicators"
-        },
-        {
           "id": "omarchy.clock",
           "format": "dddd h:mm AP",
           "formatAlt": "d MMMM 'W'ww yyyy",
-          "verticalFormat": "h\n—\nmm",
-          "birthYear": 0,
-          "lifeExpectancy": 90
-        },
+          "verticalFormat": "h\n—\nmm"
+        }
+      ],
+      "centerEnd": [
         {
-          "id": "omarchy.keyboard-layout"
+          "id": "omarchy.elsewhen",
+          "cities": [
+            {
+              "name": "Los Angeles",
+              "zone": "America/Los_Angeles",
+              "lat": 34.05,
+              "lon": -118.24,
+              "people": [
+                "Jamie"
+              ]
+            },
+            {
+              "name": "Colorado Springs",
+              "zone": "America/Denver",
+              "lat": 38.83,
+              "lon": -104.82,
+              "people": [
+                "Kyle & Ryan"
+              ]
+            },
+            {
+              "name": "Phoenix",
+              "zone": "America/Phoenix",
+              "people": [
+                "Adam",
+                "Rachel",
+                "Beth"
+              ]
+            },
+            {
+              "name": "Dallas",
+              "zone": "America/Chicago",
+              "lat": 32.78,
+              "lon": -96.8,
+              "people": [
+                "Alex"
+              ]
+            },
+            {
+              "name": "Atlanta",
+              "zone": "America/New_York",
+              "lat": 33.75,
+              "lon": -84.39,
+              "people": [
+                "Paul"
+              ]
+            },
+            {
+              "name": "Washington DC",
+              "zone": "America/New_York",
+              "lat": 38.9,
+              "lon": -77.04,
+              "people": [
+                "CAVA"
+              ]
+            }
+          ],
+          "hour24": false
         },
         {
           "id": "omarchy.weather"
@@ -42,13 +99,14 @@
       ],
       "right": [
         {
-          "id": "kph.tray"
+          "id": "omarchy.tray"
         },
         {
-          "id": "jankeesvw.notification-center"
+          "id": "vstoms.netbird",
+          "adminConsoleUrl": "https://vpn.holloway.network/"
         },
         {
-          "id": "melonamin.apple-music"
+          "id": "omarchy.keyboard-layout"
         },
         {
           "id": "omarchy.agents"
@@ -68,14 +126,25 @@
         {
           "id": "omarchy.power"
         }
+      ],
+      "tray": [
+        {
+          "id": "superwhisper.panel"
+        }
       ]
     }
   },
-  "plugins": [],
-  "disabledPlugins": [
-    "omarchy.menu"
-  ],
-  "cloneSourceRestores": [
-    "krall.switchboard"
-  ]
+  "dock": {
+    "position": "bottom",
+    "pinned": [
+      "org.gnome.Nautilus",
+      "chromium",
+      "foot",
+      "omacalc",
+      "omawrite",
+      "X",
+      "YouTube"
+    ]
+  },
+  "plugins": []
 }

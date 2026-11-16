@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Outlook Calendar
+Comment=Outlook Calendar
+Exec=webapp-profile outlook-cal
+Terminal=false
+Type=Application
+Icon=outlook-calendar
+StartupNotify=true

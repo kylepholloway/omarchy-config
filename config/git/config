@@ -26,12 +26,12 @@
 [rerere]
 	enabled = true           # Record and reuse conflict resolutions
 	autoupdate = true        # Apply stored conflict resolutions automatically
+[credential "https://github.com"]
+	helper = 
+	helper = !/home/kyle/.local/share/mise/shims/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/home/kyle/.local/share/mise/shims/gh auth git-credential
 [user]
 	name = Kyle Holloway
 	email = kylepholloway@gmail.com
-[credential "https://github.com"]
-	helper = 
-	helper = !/home/kph/.local/share/mise/installs/gh/2.98.0/gh_2.98.0_linux_amd64/bin/gh auth git-credential
-[credential "https://gist.github.com"]
-	helper = 
-	helper = !/home/kph/.local/share/mise/installs/gh/2.98.0/gh_2.98.0_linux_amd64/bin/gh auth git-credential
