@@ -52,3 +52,6 @@ hl.unbind("SUPER + CTRL + K")         -- cheat sheet for the Herdr terminal app
 -- moves it there (without following), then Super+4 to go along.
 o.rebind("SUPER + SHIFT + code:13", "Screenshot (Mac Cmd+Shift+4)", "omarchy-capture-screenshot")
 o.bind("SUPER + SHIFT + S", "Screenshot", "omarchy-capture-screenshot")
+
+-- Join the current or next meeting in its calendar's Chrome profile (see cal-join-next)
+o.bind("SUPER + CTRL + J", "Join next meeting", "cal-join-next")

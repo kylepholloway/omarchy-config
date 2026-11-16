@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+"""Join the meeting happening now, or the next one starting within 15 minutes,
+in the Chrome profile its calendar belongs to (Super + Ctrl + J)."""
+
+import datetime as dt
+import json
+import os
+import subprocess
+from pathlib import Path
+
+now = dt.datetime.now().astimezone()
+try:
+    events = json.loads((Path.home() / ".cache/cal-sync/events.json").read_text()).get("events", [])
+except (OSError, ValueError):
+    events = []
+
+candidates = []
+for e in events:
+    if e.get("allDay") or not str(e.get("joinUrl") or "").startswith("https://"):
+        continue
+    try:
+        start, end = dt.datetime.fromisoformat(e["start"]), dt.datetime.fromisoformat(e["end"])
+    except (KeyError, ValueError):
+        continue
+    if start <= now < end or now < start <= now + dt.timedelta(minutes=15):
+        candidates.append((start, e))
+
+if not candidates:
+    subprocess.run(["notify-send", "--app-name=Calendar", "No meeting to join",
+                    "Nothing with a meeting link is on now or in the next 15 minutes."])
+else:
+    # Prefer the one starting soonest after now; otherwise the latest that already began.
+    upcoming = [c for c in candidates if c[0] > now]
+    _, ev = min(upcoming, key=lambda c: c[0]) if upcoming else max(candidates, key=lambda c: c[0])
+    os.execvp("webapp-profile", ["webapp-profile", "join", str(ev.get("profile", "")), ev["joinUrl"]])

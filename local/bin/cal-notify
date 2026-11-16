@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+"""Desktop alert 10 minutes before each meeting, with a Join button.
+
+Runs every minute from cal-notify.timer and reads ~/.cache/cal-sync/events.json
+(written by cal-sync). Join opens the link through webapp-profile, so the
+meeting lands in the Chrome profile its calendar belongs to. Each event is
+alerted once; state lives in ~/.local/state/cal-sync/notified.json.
+"""
+
+import datetime as dt
+import json
+import subprocess
+from pathlib import Path
+
+EVENTS = Path.home() / ".cache/cal-sync/events.json"
+STATE = Path.home() / ".local/state/cal-sync/notified.json"
+LEAD = dt.timedelta(minutes=10)
+
+# Join waits for the click in the background; arguments stay positional, so a
+# title or link is never interpreted by the shell.
+WAIT_AND_JOIN = (
+    'choice=$(notify-send --app-name=Calendar --urgency=critical --icon=x-office-calendar '
+    '--action=join=Join --wait -- "$1" "$2")\n'
+    '[ "$choice" = join ] && [ -n "$4" ] && exec webapp-profile join "$3" "$4"\n'
+)
+
+
+def main():
+    now = dt.datetime.now().astimezone()
+    try:
+        events = json.loads(EVENTS.read_text()).get("events", [])
+    except (OSError, ValueError):
+        return
+    try:
+        sent = set(json.loads(STATE.read_text()))
+    except (OSError, ValueError):
+        sent = set()
+
+    for e in events:
+        if e.get("allDay"):
+            continue
+        try:
+            start = dt.datetime.fromisoformat(e["start"])
+        except (KeyError, ValueError):
+            continue
+        key = f'{e.get("profile")}|{e.get("title")}|{e["start"]}'
+        if key in sent or not (now <= start <= now + LEAD):
+            continue
+        mins = max(1, round((start - now).total_seconds() / 60))
+        title = str(e.get("title", "Meeting"))[:120]
+        body = f'{e.get("profile", "")} · in {mins} min · {start.strftime("%-I:%M %p")}'
+        url = e.get("joinUrl") or ""
+        if url and not url.startswith("https://"):
+            url = ""
+        subprocess.Popen(
+            ["bash", "-c", WAIT_AND_JOIN, "cal-notify", title, body, str(e.get("profile", "")), url],
+            start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        sent.add(key)
+
+    # Forget events that are over so the state file stays small.
+    live = set()
+    for k in sent:
+        try:
+            if dt.datetime.fromisoformat(k.rsplit("|", 1)[1]) > now - dt.timedelta(days=1):
+                live.add(k)
+        except ValueError:
+            pass
+    STATE.parent.mkdir(parents=True, exist_ok=True)
+    STATE.write_text(json.dumps(sorted(live)))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,7 @@
 bluemail
 bolt-launcher
 flyline
+omacal-bin
 runelite
 slack-desktop
 zoom

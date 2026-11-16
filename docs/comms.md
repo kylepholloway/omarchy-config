@@ -22,7 +22,10 @@ be signed in to every account at once.
 | `config/hypr/chrome-profiles.lua` | `~/.config/hypr/` | Web app window borders in each profile's brand color (required from `hyprland.lua`) |
 | `config/systemd/user/cal-sync.*` | `~/.config/systemd/user/` | Refreshes the calendar every 5 minutes |
 | `system/chrome-policies/bitwarden.json` | `/etc/opt/chrome/policies/managed.d/` | Force-installs and pins Bitwarden in every profile |
-| `scripts/setup-comms.sh` | run once | Creates the profiles, policies and timer |
+| `config/omarchy/plugins/kph.calendar/` | `~/.config/omarchy/plugins/` | Bar widget: next meeting + countdown; click for a 3-day agenda with Join buttons; middle-click refreshes, right-click joins |
+| `local/bin/cal-notify` + `config/systemd/user/cal-notify.*` | `~/.local/bin/`, user timer | Alert 10 minutes before each meeting, with a Join button |
+| `local/bin/cal-join-next` | `~/.local/bin/` | **Super + Ctrl + J** (in `bindings.lua`): join the meeting on now or starting within 15 min |
+| `scripts/setup-comms.sh` | run once | Creates the profiles, policies, timers and bar widget |
 
 ## New machine
 
@@ -31,6 +34,20 @@ be signed in to every account at once.
 3. In each profile: log in to Bitwarden (self-hosted Vaultwarden), then the org's accounts.
 4. Paste private calendar addresses into `~/.config/cal-sync/feeds.conf`
    (template: `docs/feeds.conf.example`; never commit the real file).
+
+## Calendar
+
+`cal-sync` merges every feed in `~/.config/cal-sync/feeds.conf` every 5 minutes into
+`~/.cache/cal-sync/events.json`. The bar widget, the alerts and Super + Ctrl + J all
+read that file, and every Join goes through `webapp-profile join <profile> <link>`, so
+Zoom, Meet and Teams open in the profile the calendar belongs to.
+
+OmaCal (`omacal-bin`, AUR) is the full calendar app for week and month views; the
+widget's "Open calendar" link starts it.
+
+Status on November 16, 2026: Personal feed connected. Archway, CAVA and TRF still need
+their addresses; publishing the CAVA and TRF Outlook calendars is Kyle's call (it
+creates an unauthenticated link to client calendars).
 
 ## Things that can't be captured as files
 

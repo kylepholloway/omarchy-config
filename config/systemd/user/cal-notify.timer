@@ -1,0 +1,10 @@
+[Unit]
+Description=Check for upcoming meetings every minute
+
+[Timer]
+OnStartupSec=45s
+OnUnitActiveSec=1min
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

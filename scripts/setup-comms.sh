@@ -85,6 +85,10 @@ if [[ ! -e ~/.config/cal-sync/feeds.conf ]]; then
   echo "    add your private calendar addresses to ~/.config/cal-sync/feeds.conf"
 fi
 systemctl --user daemon-reload
-systemctl --user enable --now cal-sync.timer
+systemctl --user enable --now cal-sync.timer cal-notify.timer
+
+say "Bar widget"
+omarchy-shell shell rescanPlugins >/dev/null 2>&1 || true
+omarchy bar put kph.calendar --section centerBegin || true
 
 say "Done. Open Chrome, sign in to Bitwarden and each org's accounts in its profile."

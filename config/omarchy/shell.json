@@ -19,6 +19,9 @@
       "centerBegin": [
         {
           "id": "omarchy.indicators"
+        },
+        {
+          "id": "kph.calendar"
         }
       ],
       "center": [

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "kph.calendar",
+  "name": "Calendar",
+  "version": "1.0.0",
+  "author": "Kyle Holloway",
+  "description": "Next meeting on the bar, and an agenda across every Chrome profile's calendar with Join buttons that open in the right profile. Reads ~/.cache/cal-sync/events.json written by cal-sync.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Calendar",
+    "description": "Next meeting and agenda with profile-aware Join",
+    "category": "Time",
+    "allowMultiple": false,
+    "defaultSection": "centerBegin"
+  }
+}
