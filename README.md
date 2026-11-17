@@ -69,6 +69,9 @@ Run `python scripts/verify-herdr-theme-sync.py` for isolated bridge checks.
 Herdr's **Brands** layout (Projects sidebar with company logos, brand colors and
 agent cards) lives in `config/herdr-app/`; see [docs/herdr-app.md](docs/herdr-app.md).
 
+Old School RuneScape (Bolt, RuneLite, the synced profile, and the QMK macropad
+keymap) is covered in [docs/osrs.md](docs/osrs.md).
+
 The `60-agent-colors` hook keeps Prismantis's prompt frame, label, text, and
 fill on the terminal palette, preserving its framed layout and other options.
 It also installs a custom `omarchy` Codex theme for code, Markdown, links, and
