@@ -121,3 +121,21 @@ Pieces: `pacman -S dkms v4l2loopback-dkms v4l2loopback-utils` (needs
 and `/etc/modprobe.d/v4l2loopback.conf`; `system/udev/90-a7-studio.rules` to
 `/etc/udev/rules.d/` (starts `a7-studio.service` when the camera connects);
 `config/systemd/user/a7-studio.service`.
+
+### Camera look (saved to mode dial 3, November 17, 2026)
+
+Tuned on screen with `a7-grade`, then moved into the camera so the feed needs no
+software grade (pipeline in repack mode, `a7-grade reset`).
+
+| Setting | Value |
+|---|---|
+| Mode | Manual exposure, ISO AUTO (range 100–6400), 1/60, f/2.8 |
+| Metering | Multi, Face Priority in Multi Metering on |
+| Creative Look | NT: Contrast +1, Highlights −2, Shadows +1, Fade +1, Saturation +1, Sharpness 0, Clarity 0 (can't go below 0) |
+| White Balance | Auto, shifted A2 / G1 (warm, magenta out of skin; G2 tinted whites green), Shockless WB on |
+| Focus | AF-C, Wide, Face/Eye priority on (Human, eye Auto), AF Transition Speed 3, Subj. Shift Sensitivity 3 |
+| Other | Picture Profile off (disabled while USB streaming anyway), SteadyShot off, Audio Recording off |
+| USB | Shooting → USB Streaming: HD 1080p 30p; Setup → USB: USB Streaming, power supply on |
+
+Next upgrades: key light on the shadow (right) side of the face; 1/8 Black Pro-Mist (82 mm) for
+skin softening, since Clarity/Sharpness can't go negative.
