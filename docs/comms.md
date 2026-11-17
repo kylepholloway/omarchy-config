@@ -139,3 +139,12 @@ software grade (pipeline in repack mode, `a7-grade reset`).
 
 Next upgrades: key light on the shadow (right) side of the face; 1/8 Black Pro-Mist (82 mm) for
 skin softening, since Clarity/Sharpness can't go negative.
+
+### Final decision: no virtual camera (November 17, 2026)
+
+Every pipeline version (ffmpeg on NV12 or MJPG, then GStreamer with leaky queues) added
+visible lag in Zoom and shifted colors compared with the raw camera. Zoom, Meet and Teams
+(all Chrome) show the same contrast boost on the raw camera, so it's corrected **in the
+camera** instead: pick **ILCE-7M4** in every app. `a7-studio.service` is switched off by
+`config/systemd/user/a7-studio.service.d/off.conf` (it only runs if
+`~/.config/a7-studio/enabled` exists); the scripts stay for experiments.
