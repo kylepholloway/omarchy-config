@@ -13,6 +13,9 @@ export const BRANDS = [
   { name: "Nessi", logo: "nessi.png", color: "#6BAD99", folder: "Work/Nessi", match: ["nessi"] },
   { name: "SoCo", logo: "soco.png", color: "#CC3333", folder: "Work/SoCo", match: ["soco"] },
   { name: "Personal", logo: "personal.png", color: "#FF6A00", folder: "Work/Personal", match: ["ai-rag-portfolio", "portfolio", "kph"] },
+  // The all-purpose home space (system setup, Omarchy, sessions like this one). Last, so
+  // Personal's omarchy-config repo still matches Personal by its folder first.
+  { name: "Omarchy", also: ["~"], logo: "omarchy.png", color: "#9ECE6A", folder: null, match: ["omarchy"] },
 ];
 
 const DIR = "mods/my-spaces/brands/";
@@ -22,7 +25,7 @@ export function brandFor(name, folder) {
   const n = (name ?? "").toLowerCase();
   const f = (folder ?? "").toLowerCase();
   for (const b of BRANDS) {
-    if (n === b.name.toLowerCase()) return b;
+    if (n === b.name.toLowerCase() || (b.also ?? []).includes(n)) return b;
     if (b.match.some((m) => n.includes(m))) return b;
   }
   for (const b of BRANDS) {

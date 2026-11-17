@@ -6,11 +6,13 @@ project's coding agents as cards. It replaces Herdr's separate Agents panel.
 
 ## What you see
 
-- **Logos instead of letter tiles** for Holloway Network, Archway, Rockefeller, Nessi, SoCo
-  and Personal.
+- **Logos instead of letter tiles** for Holloway Network, Archway, Rockefeller, Nessi, SoCo,
+  Personal and Omarchy. Omarchy is the all-purpose home space (named "Omarchy" on November
+  17, 2026; it also matches when Herdr calls it `~`), for system setup and Claude sessions
+  that aren't tied to a project.
   A space matches a brand by its name, else by the folder its first terminal is in
-  (`~/Work/<Workstream>/...` or a repo name such as `archway-platform`). `~` and anything
-  unmatched keep Herdr's colored letter tile.
+  (`~/Work/<Workstream>/...` or a repo name such as `archway-platform`). Anything unmatched
+  keeps Herdr's colored letter tile.
 - **Brand colors.** The selected project gets a thin outline and faint tint in its brand
   color; agent cards are outlines in that color, and the focused card is a solid fill with
   dark or white text, whichever reads better.
@@ -33,7 +35,8 @@ project's coding agents as cards. It replaces Herdr's separate Agents panel.
   matching words, folder and Paperclip link. Edits to the live copy apply at once.
 - `mods/my-spaces/brands/*.png` are 72px rounded tiles, made with `rsvg-convert` and
   ImageMagick from each repo's own favicon or logo (Nessi's is the "n" cut from its
-  wordmark; Rockefeller's is the public website's favicon).
+  wordmark, white on its primary-400 green; Rockefeller's is the public website's favicon;
+  Omarchy's is the system icon).
 - Herdr writes `gpui-kit.d.ts` and `jsconfig.json` into every mod folder on start; they are
   git-ignored.
 - **Both are copies, not symlinks.** Herdr's hot reload does not see edits made through a
