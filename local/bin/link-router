@@ -2,10 +2,9 @@
 """Default handler for https links: meeting links open in the right Chrome profile.
 
 OmaCal, Slack and everything else hand https links to xdg-open, which runs this.
-  1. A Zoom / Meet / Teams / Webex link that belongs to an event in OmaCal (or the
-     cal-sync cache) opens in the Chrome profile of the calendar it came from.
-  2. Any other Zoom link goes through webapp-profile zoom-join (profile picker,
-     or a company Zoom domain mapped in webapp-profile).
+  1. A Zoom / Meet / Teams / Webex link asks which profile to join as; if it
+     belongs to an OmaCal event, that calendar's profile is preselected.
+  2. (Start Meeting's own Zoom hand-off arrives as zoommtg:// and skips the ask.)
   3. Sign-in (OAuth) pages from apps ask which Chrome profile to use.
   4. Everything else opens in Chrome's Personal profile (not the last-used one).
 
@@ -135,11 +134,9 @@ def main():
     if not profile:
         profile = from_calsync(key)
 
-    if profile:
-        os.execvp("webapp-profile", ["webapp-profile", "join", profile, url])
-    if kind == "zoom":
-        os.execvp("webapp-profile", ["webapp-profile", "zoom-join", url])
-    return browser(url)
+    # Invites always ask which account to join as; a meeting found on one of
+    # the calendars has that account preselected (Enter confirms).
+    os.execvp("webapp-profile", ["webapp-profile", "join-ask", profile or "", url])
 
 
 if __name__ == "__main__":
