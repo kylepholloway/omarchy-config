@@ -55,12 +55,20 @@ else
   out=(-f v4l2 "$OUT")
 fi
 
+if [[ -z $lut && $graded == 0 && $CAM != test ]]; then
+  # Everyday path: GStreamer with one-frame leaky queues, so a hiccup drops
+  # frames instead of building delay (ffmpeg's deep capture queue made the feed
+  # lag badly). MJPG in, full range converted to TV range, BT.601 I420 out (what
+  # v4l2loopback and Chrome expect for webcams).
+  exec gst-launch-1.0 -q v4l2src device="$CAM" do-timestamp=true \
+    ! image/jpeg,width=1920,height=1080,framerate=30/1 \
+    ! queue max-size-buffers=1 leaky=downstream ! jpegdec ! videoconvert \
+    ! video/x-raw,format=I420,colorimetry=2:4:7:1 \
+    ! queue max-size-buffers=1 leaky=downstream ! v4l2sink device="$OUT" sync=false
+fi
 if [[ -z $lut && $graded == 0 ]]; then
-  # Nothing to grade: convert the MJPG's full range to TV range and output I420,
-  # the same format the graded path outputs, so apps that keep the camera open across
-  # a restart (Zoom) never see the format change (that showed as a gray picture).
-  exec ffmpeg -hide_banner -loglevel warning -nostdin -fflags nobuffer -flags low_delay "${input[@]}" \
-    -vf "$RANGE,format=yuv420p" -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709 "${out[@]}"
+  # Test mode only (A7_STUDIO_TEST=1): exercise the range conversion with ffmpeg.
+  exec ffmpeg -hide_banner -loglevel warning -nostdin "${input[@]}" -vf "$RANGE,format=yuv420p" "${out[@]}"
 fi
 
 f() { python3 -c "print(f'{$1:.4f}')"; }

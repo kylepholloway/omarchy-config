@@ -28,6 +28,11 @@ choice=${1:-}
 for o in "${OPTIONS[@]}"; do
   if [[ ${o%%|*} == "$choice" ]]; then
     rest=${o#*|}
+    # Remember the account for a few minutes: Zoom's "New meeting" -> "Join"
+    # hands a zoommtg:// link back to the desktop, and webapp-profile zoom-join
+    # uses this hint instead of asking which account again.
+    mkdir -p "$HOME/.cache/webapp-profile"
+    printf '%s\n' "${rest%%|*}" >"$HOME/.cache/webapp-profile/meeting-hint"
     exec webapp-profile join "${rest%%|*}" "${rest#*|}"
   fi
 done

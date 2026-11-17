@@ -65,7 +65,13 @@ app=${1:-}
 case $app in
 pick) # pick <url>: ask which profile, then open the link there in a normal tab
   link=${2:?url}
-  profile=$(pick_profile "Open in" "${PROFILE_ORDER[@]}") || exit 0
+  profile=""
+  hint="$HOME/.cache/webapp-profile/meeting-hint"
+  if [[ $link == *zoom.us/* && -f $hint ]] && (( $(date +%s) - $(stat -c %Y "$hint") < 300 )); then
+    h=$(head -1 "$hint"); [[ -n ${PROFILE_DIR[$h]+x} ]] && profile=$h
+  fi
+  echo "$(date +%T) pick host=$(sed -E 's|^[a-z]+://([^/?]+).*|\1|' <<<"$link") -> ${profile:-picker}" >>"$HOME/.cache/webapp-profile/zoom-join.log"
+  [[ -n $profile ]] || profile=$(pick_profile "Open in" "${PROFILE_ORDER[@]}") || exit 0
   exec omarchy-launch-browser --profile-directory="${PROFILE_DIR[$profile]}" "$link"
   ;;
 join) # join <profile> <meeting url>: open a calendar meeting in the calendar's own profile
@@ -91,6 +97,13 @@ zoom-join)
       done
     fi
   fi
+  # Started from meeting-start in the last 5 minutes: use the account picked there.
+  hint="$HOME/.cache/webapp-profile/meeting-hint"
+  if [[ -z $profile && -f $hint ]] && (( $(date +%s) - $(stat -c %Y "$hint") < 300 )); then
+    h=$(head -1 "$hint")
+    [[ -n ${PROFILE_DIR[$h]+x} ]] && profile=$h
+  fi
+  echo "$(date +%T) zoom-join host=$host class=${cls:-?} -> ${profile:-picker}" >>"$HOME/.cache/webapp-profile/zoom-join.log"
   [[ -n $profile ]] || profile=$(pick_profile "Join Zoom as" "${PROFILE_ORDER[@]}") || exit 0
   open_in_profile "$profile" "$(zoom_web_url "$link")"
   ;;
