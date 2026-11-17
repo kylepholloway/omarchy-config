@@ -1,0 +1,33 @@
+#!/bin/bash
+# Feed the Sony A7 IV's USB stream into the "A7 IV Studio" virtual camera
+# (v4l2loopback, /dev/video20), color-correct and with an optional LUT.
+#
+# Why: Chrome (Zoom/Meet/Teams on the web) picks the camera's MJPG mode, which is
+# full-range, and treats it as TV range, crushing shadows into extra contrast.
+# Reading the camera's NV12 mode (already TV range) avoids that. Any .cube or .3dl
+# in ~/.config/a7-studio/ is applied as a 3D LUT (first alphabetically); remove it
+# to go back to the straight feed.
+#
+# Started by udev (a7-studio.service) when the camera connects in USB Streaming mode.
+set -euo pipefail
+
+OUT=/dev/video20
+LUT_DIR="$HOME/.config/a7-studio"
+CAM=$(ls /dev/v4l/by-id/usb-Sony_ILCE-7M4_*-video-index0 2>/dev/null | head -1 || true)
+[[ -n $CAM ]] || { echo "a7-studio: camera not found (USB Streaming mode on?)" >&2; exit 1; }
+[[ -e $OUT ]] || { echo "a7-studio: $OUT missing (v4l2loopback not loaded)" >&2; exit 1; }
+
+lut=$(find "$LUT_DIR" -maxdepth 1 \( -iname '*.cube' -o -iname '*.3dl' \) 2>/dev/null | sort | head -1 || true)
+input=(-f v4l2 -input_format nv12 -framerate 30 -video_size 1920x1080 -i "$CAM")
+
+if [[ -z $lut ]]; then
+  # No LUT: the camera's NV12 is already TV range, so forward frames untouched (~0% CPU).
+  exec ffmpeg -hide_banner -loglevel warning -nostdin "${input[@]}" -c:v copy -f v4l2 "$OUT"
+fi
+
+# LUT (e.g. an S-Log3 -> Rec.709 look): lut3d works in RGB; return TV-range I420.
+echo "a7-studio: applying LUT $(basename "$lut")"
+exec ffmpeg -hide_banner -loglevel warning -nostdin "${input[@]}" \
+  -vf "format=gbrp,lut3d=file='${lut//\'/\\\'}':interp=tetrahedral,scale=out_range=limited:out_color_matrix=bt709,format=yuv420p" \
+  -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709 \
+  -f v4l2 "$OUT"

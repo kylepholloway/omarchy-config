@@ -1,0 +1,9 @@
+[Unit]
+Description=Sony A7 IV -> "A7 IV Studio" virtual camera (range fix + optional LUT)
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+ExecStart=%h/.local/bin/a7-studio
+Restart=on-failure
+RestartSec=3

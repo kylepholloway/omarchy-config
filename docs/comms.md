@@ -94,3 +94,17 @@ controller not responding, assume dead") when the camera switched modes on Novem
 recabling by resetting that controller:
 
     pkexec sh -c 'echo 0000:03:00.0 > /sys/bus/pci/drivers/xhci_hcd/unbind; sleep 2; echo 0000:03:00.0 > /sys/bus/pci/drivers/xhci_hcd/bind'
+
+### "A7 IV Studio" virtual camera (pick this in Zoom/Meet/Teams)
+
+Chrome uses the camera's full-range MJPG mode and reads it as TV range, crushing 15% of
+the image into black (the extra contrast versus the camera screen). `local/bin/a7-studio`
+reads the camera's NV12 mode instead (already TV range) and feeds a v4l2loopback virtual
+camera, **A7 IV Studio** (`/dev/video20`), passthrough at ~0% CPU. Put a `.cube` or `.3dl`
+in `~/.config/a7-studio/` to apply a LUT (~65% of one core at 1080p30); remove it to go back.
+
+Pieces: `pacman -S dkms v4l2loopback-dkms v4l2loopback-utils` (needs
+`linux-omarchy-headers`); `system/modprobe/*` to `/etc/modules-load.d/v4l2loopback.conf`
+and `/etc/modprobe.d/v4l2loopback.conf`; `system/udev/90-a7-studio.rules` to
+`/etc/udev/rules.d/` (starts `a7-studio.service` when the camera connects);
+`config/systemd/user/a7-studio.service`.

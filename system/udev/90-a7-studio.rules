@@ -1,0 +1,2 @@
+# Start the A7 IV Studio virtual camera when the Sony A7 IV connects in USB Streaming mode.
+ACTION=="add", SUBSYSTEM=="video4linux", ATTRS{idVendor}=="054c", ATTRS{idProduct}=="0de7", ATTR{index}=="0", TAG+="systemd", ENV{SYSTEMD_USER_WANTS}+="a7-studio.service"
