@@ -9,8 +9,7 @@
 export const BRANDS = [
   { name: "Holloway Network", logo: "holloway.png", color: "#F7A26A", folder: "Work/Holloway Network", match: ["holloway", "family-cookbook", "deploy-session"], paperclip: "https://agents.holloway.network/HOL/issues" },
   { name: "Archway", logo: "archway.png", color: "#6B8AFD", folder: "Work/Archway", match: ["archway"], paperclip: "https://agents.holloway.network/ARC/issues" },
-  // No logo yet: keeps its letter tile and color, but gets its Paperclip line.
-  { name: "Rockefeller", logo: null, color: null, folder: "Work/Rockefeller", match: ["rockefeller"], paperclip: "https://h2d.holloway.network/ROC/issues" },
+  { name: "Rockefeller", logo: "rockefeller.png", color: "#47A664", folder: "Work/Rockefeller", match: ["rockefeller"], paperclip: "https://h2d.holloway.network/ROC/issues" },
   { name: "Nessi", logo: "nessi.png", color: "#6BAD99", folder: "Work/Nessi", match: ["nessi"] },
   { name: "SoCo", logo: "soco.png", color: "#CC3333", folder: "Work/SoCo", match: ["soco"] },
   { name: "Personal", logo: "personal.png", color: "#FF6A00", folder: "Work/Personal", match: ["ai-rag-portfolio", "portfolio", "kph"] },
