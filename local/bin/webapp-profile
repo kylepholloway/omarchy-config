@@ -79,6 +79,18 @@ zoom-join)
   link=${2:-}
   host=$(sed -E 's|^[a-z]+://([^/?]+).*|\1|' <<<"$link")
   profile=${ZOOM_DOMAIN[$host]:-}
+  # A zoommtg:// link raised from inside a Chrome web-app window (Zoom's own
+  # "New meeting" / "Join" pages) belongs to that window's profile: app windows
+  # are classed chrome-<site>-<Profile dir>, so the focused one tells us which.
+  if [[ -z $profile ]]; then
+    cls=$(hyprctl activewindow -j 2>/dev/null | sed -n 's/.*"class": *"\([^"]*\)".*/\1/p' | head -1)
+    if [[ $cls =~ ^chrome-.*-(Default|Profile_[0-9]+)$ ]]; then
+      dir=${BASH_REMATCH[1]//_/ }
+      for label in "${PROFILE_ORDER[@]}"; do
+        [[ ${PROFILE_DIR[$label]} == "$dir" ]] && profile=$label
+      done
+    fi
+  fi
   [[ -n $profile ]] || profile=$(pick_profile "Join Zoom as" "${PROFILE_ORDER[@]}") || exit 0
   open_in_profile "$profile" "$(zoom_web_url "$link")"
   ;;

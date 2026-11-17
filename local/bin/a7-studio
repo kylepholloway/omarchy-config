@@ -43,7 +43,11 @@ fi
 graded=0
 for k in "${!G[@]}"; do [[ ${G[$k]} != 0 ]] && graded=1; done
 
-input=(-f v4l2 -input_format nv12 -framerate 30 -video_size 1920x1080 -i "$CAM")
+# Read the camera's MJPG stream: it arrives with noticeably less delay than the
+# uncompressed NV12 one (tested November 17, 2026). MJPG is full range, so every
+# path below converts it to TV range, which is what Chrome assumes.
+input=(-f v4l2 -input_format mjpeg -framerate 30 -video_size 1920x1080 -i "$CAM")
+RANGE="scale=in_range=full:out_range=limited:out_color_matrix=bt709"
 if [[ $CAM == test ]]; then
   input=(-f lavfi -i testsrc2=size=1920x1080:rate=30 -t 5)
   out=(-f null -)
@@ -52,11 +56,11 @@ else
 fi
 
 if [[ -z $lut && $graded == 0 ]]; then
-  # Nothing to grade: the camera's NV12 is already TV range. Only repack it to I420,
+  # Nothing to grade: convert the MJPG's full range to TV range and output I420,
   # the same format the graded path outputs, so apps that keep the camera open across
   # a restart (Zoom) never see the format change (that showed as a gray picture).
   exec ffmpeg -hide_banner -loglevel warning -nostdin -fflags nobuffer -flags low_delay "${input[@]}" \
-    -vf format=yuv420p -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709 "${out[@]}"
+    -vf "$RANGE,format=yuv420p" -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709 "${out[@]}"
 fi
 
 f() { python3 -c "print(f'{$1:.4f}')"; }
@@ -83,11 +87,11 @@ grade_yuv() {
 
 if [[ -z $lut ]]; then
   echo "a7-studio: grade ${G[*]}"
-  chain="format=yuv420p,$(grade_yuv)"
+  chain="$RANGE,format=yuv420p,$(grade_yuv)"
 else
   # A LUT needs RGB; apply the grade first (YUV), then the LUT.
   echo "a7-studio: applying LUT $(basename "$lut")"
-  chain="format=yuv420p"
+  chain="$RANGE,format=yuv420p"
   [[ $graded == 1 ]] && chain+=",$(grade_yuv)"
   chain+=",format=gbrp,lut3d=file='${lut//\'/\\\'}':interp=tetrahedral,scale=out_range=limited:out_color_matrix=bt709,format=yuv420p"
 fi
