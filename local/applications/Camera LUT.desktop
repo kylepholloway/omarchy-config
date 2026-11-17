@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Camera LUT
+Comment=Choose the LUT for the A7 IV Studio virtual camera
+Exec=a7-lut
+Icon=camera-web
+Terminal=false

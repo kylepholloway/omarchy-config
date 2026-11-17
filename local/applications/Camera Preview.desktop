@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Camera Preview
+Comment=Live preview of the A7 IV Studio virtual camera
+Exec=a7-lut preview
+Icon=camera-web
+Terminal=false

@@ -100,8 +100,10 @@ recabling by resetting that controller:
 Chrome uses the camera's full-range MJPG mode and reads it as TV range, crushing 15% of
 the image into black (the extra contrast versus the camera screen). `local/bin/a7-studio`
 reads the camera's NV12 mode instead (already TV range) and feeds a v4l2loopback virtual
-camera, **A7 IV Studio** (`/dev/video20`), passthrough at ~0% CPU. Put a `.cube` or `.3dl`
-in `~/.config/a7-studio/` to apply a LUT (~65% of one core at 1080p30); remove it to go back.
+camera, **A7 IV Studio** (`/dev/video20`), passthrough at ~0% CPU. LUTs (~65% of one core at
+1080p30): `a7-lut import <pack.zip>` copies .cube/.3dl files into `~/.config/a7-studio/luts/`;
+the **Camera LUT** launcher (or `a7-lut`, `a7-lut next|prev|none`) picks one; **Camera
+Preview** (`a7-lut preview`) shows the result live. LUT packs stay out of the repo.
 
 Pieces: `pacman -S dkms v4l2loopback-dkms v4l2loopback-utils` (needs
 `linux-omarchy-headers`); `system/modprobe/*` to `/etc/modules-load.d/v4l2loopback.conf`

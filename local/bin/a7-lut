@@ -1,0 +1,59 @@
+#!/bin/bash
+# Choose the LUT the "A7 IV Studio" virtual camera applies (see a7-studio).
+#
+#   a7-lut                 pick from a menu (None = straight camera feed)
+#   a7-lut next | prev     step through the LUTs alphabetically
+#   a7-lut none            turn the LUT off
+#   a7-lut import <zip|folder>   add a LUT pack (.cube/.3dl files, any folder depth)
+#   a7-lut preview         open a live preview window of the virtual camera
+#   a7-lut current         print the active LUT
+set -euo pipefail
+
+DIR="$HOME/.config/a7-studio"
+LUTS="$DIR/luts"
+ACTIVE="$DIR/active"
+mkdir -p "$LUTS"
+
+list() { (cd "$LUTS" && find . -type f \( -iname '*.cube' -o -iname '*.3dl' \) | sed 's|^\./||' | sort -f); }
+current() { [[ -s $ACTIVE ]] && cat "$ACTIVE" || echo ""; }
+
+apply() { # relative path or "" for none
+  if [[ -n $1 ]]; then printf '%s\n' "$1" >"$ACTIVE"; else rm -f "$ACTIVE"; fi
+  systemctl --user restart a7-studio.service 2>/dev/null || true
+  notify-send --app-name="A7 IV Studio" --expire-time=2500 "LUT" "${1:-None (straight feed)}"
+}
+
+case ${1:-pick} in
+pick)
+  mapfile -t luts < <(list)
+  (( ${#luts[@]} )) || { notify-send "A7 IV Studio" "No LUTs yet: a7-lut import <pack.zip>"; exit 1; }
+  choice=$(omarchy-menu-select "LUT" "None" "${luts[@]}" -- --width 640 --maxheight 700 --selected "$(current || true)") || exit 0
+  [[ $choice == None ]] && apply "" || apply "$choice"
+  ;;
+next | prev)
+  mapfile -t luts < <(list)
+  (( ${#luts[@]} )) || exit 1
+  cur=$(current); idx=-1
+  for i in "${!luts[@]}"; do [[ ${luts[$i]} == "$cur" ]] && idx=$i; done
+  if [[ $1 == next ]]; then idx=$(( (idx + 1) % ${#luts[@]} )); else idx=$(( idx <= 0 ? ${#luts[@]} - 1 : idx - 1 )); fi
+  apply "${luts[$idx]}"
+  ;;
+none) apply "" ;;
+current) current ;;
+import)
+  src=${2:?usage: a7-lut import <zip|folder>}
+  dest="$LUTS/$(basename "${src%.zip}")"
+  mkdir -p "$dest"
+  if [[ $src == *.zip ]]; then
+    tmp=$(mktemp -d)
+    unzip -q "$src" -d "$tmp"
+    find "$tmp" -type f \( -iname '*.cube' -o -iname '*.3dl' \) -not -path '*/__MACOSX/*' -exec cp -t "$dest" {} +
+    rm -rf "$tmp"
+  else
+    find "$src" -type f \( -iname '*.cube' -o -iname '*.3dl' \) -not -path '*/__MACOSX/*' -exec cp -t "$dest" {} +
+  fi
+  echo "Imported $(find "$dest" -type f | wc -l) LUTs into $dest"
+  ;;
+preview) exec mpv --profile=low-latency --untimed --no-cache --title="A7 IV Studio preview" av://v4l2:/dev/video20 ;;
+*) sed -n '2,10p' "$0"; exit 1 ;;
+esac
