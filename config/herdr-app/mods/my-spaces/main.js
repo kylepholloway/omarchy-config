@@ -6,7 +6,7 @@
 import { View, div, svg, image } from "gpui-kit";
 import { brandFor, logoPath } from "./brands.js";
 import { v_flex, h_flex, ScrollHandle } from "gpui-base";
-import { spaces, machines, panes, agents, setAgentOrder, run, openOverlay, exec, hc, theme, shared, setShared, watchFolder, window, layout } from "herdr";
+import { spaces, machines, panes, agents, setAgentOrder, setWindowTitle, run, openOverlay, exec, hc, theme, shared, setShared, watchFolder, window, layout } from "herdr";
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -670,6 +670,9 @@ export default class Spaces extends View {
     const info = Object.fromEntries(sp.map((p) => [p.id, brandFor(p.name, place(p, ps))]).filter(([, b]) => b)
       .map(([id, b]) => [id, { name: b.name, logo: b.logo ? logoPath(b) : null, color: b.color ?? null, paperclip: b.paperclip ?? null }]));
     if (JSON.stringify(info) !== JSON.stringify(shared("brand.info") ?? {})) setShared("brand.info", info);
+    // The OS window title names the project, for Omarchy's window switcher: "Archway · Herdr".
+    const title = sp.find((p) => p.active)?.name;
+    if (title && title !== this.title) { this.title = title; setWindowTitle(`${title} \u00b7 Herdr`); }
     const list = this.grouped(t, collapsed);
     // Bring the active space into view when it, or its place in the list, changes; a row already in view stays put.
     const active = sp.find(p => p.active)?.id;

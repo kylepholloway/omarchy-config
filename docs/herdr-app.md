@@ -30,6 +30,15 @@ project's coding agents as cards. It replaces Herdr's separate Agents panel.
   5 minutes. Claude Code's own `.claude/settings.local.json` and worktrees don't count as
   changes. A mod pane never exits, so the project stays when all its terminals close.
   Close the Home tab to let a project go.
+- **Notes** on each Home tab: a markdown box that autosaves to `NOTES.md` in the project
+  folder (Omarchy: `~/Documents/omarchy-notes.md`), so Claude sessions there can read it.
+  Edits made elsewhere load in when you aren't typing; if both change at once, yours wins
+  and it says so.
+- **Notifications** (`my-toast`, a clone of Herdr's `toast`, set as the layout's `toast`):
+  while Herdr isn't the focused window, an agent's done or needs-you alert also goes to
+  Omarchy's notification center. Clicking it runs the alert's action (go to the agent) and
+  focuses Herdr. In-app toasts are unchanged.
+- **Window title** names the active project ("Archway · Herdr") for the window switcher.
 - **Tab bar** (`my-tabs`, a clone of Herdr's `tabs`): the active tab has the project's brand
   outline and tint; the Home tab shows the project logo.
 - **Paperclip links**: Holloway Network (HOL), Archway (ARC) and Rockefeller (ROC) have a
@@ -43,6 +52,7 @@ project's coding agents as cards. It replaces Herdr's separate Agents panel.
 | `config/herdr-app/mods/my-spaces/` | `~/.config/herdr-app/mods/my-spaces` | copy (see below) |
 | `config/herdr-app/mods/Home/` | `~/.config/herdr-app/mods/Home` | copy |
 | `config/herdr-app/mods/my-tabs/` | `~/.config/herdr-app/mods/my-tabs` | copy |
+| `config/herdr-app/mods/my-toast/` | `~/.config/herdr-app/mods/my-toast` | copy |
 | `config/herdr-app/layouts/brands.json` | `~/.config/herdr-app/layouts/brands.json` | copy (Herdr rewrites it) |
 
 - `mods/my-spaces/brands.js` is the one place to edit: each brand's name, logo, color,
@@ -60,7 +70,7 @@ project's coding agents as cards. It replaces Herdr's separate Agents panel.
   replace a symlink with a plain file. Edit the live files, then copy them back:
 
 ```sh
-for m in my-spaces Home my-tabs; do rsync -a --exclude gpui-kit.d.ts --exclude jsconfig.json --exclude __pycache__ ~/.config/herdr-app/mods/$m/ ~/Work/Personal/omarchy-config/config/herdr-app/mods/$m/; done
+for m in my-spaces Home my-tabs my-toast; do rsync -a --exclude gpui-kit.d.ts --exclude jsconfig.json --exclude __pycache__ ~/.config/herdr-app/mods/$m/ ~/Work/Personal/omarchy-config/config/herdr-app/mods/$m/; done
 cp ~/.config/herdr-app/layouts/brands.json ~/Work/Personal/omarchy-config/config/herdr-app/layouts/
 ```
 - Theme colors come from the Omarchy `50-herdr-desktop` hook (see the README), not from
@@ -69,7 +79,7 @@ cp ~/.config/herdr-app/layouts/brands.json ~/Work/Personal/omarchy-config/config
 ## Restore on a new machine
 
 ```sh
-for m in my-spaces Home my-tabs; do rsync -a ~/Work/Personal/omarchy-config/config/herdr-app/mods/$m/ ~/.config/herdr-app/mods/$m/; herdr-app check ~/.config/herdr-app/mods/$m; done
+for m in my-spaces Home my-tabs my-toast; do rsync -a ~/Work/Personal/omarchy-config/config/herdr-app/mods/$m/ ~/.config/herdr-app/mods/$m/; herdr-app check ~/.config/herdr-app/mods/$m; done
 cp ~/Work/Personal/omarchy-config/config/herdr-app/layouts/brands.json ~/.config/herdr-app/layouts/
 herdr-app do layout.switch --name brands
 ```
@@ -102,7 +112,7 @@ second wave (session resume, repos and pull requests on Home, branded tab bar).
 ## After Herdr updates
 
 `my-spaces` is a clone of Herdr's shipped `spaces` mod (version 0.1.16), `my-tabs` of its
-`tabs` mod, and `brands.json` of its `main` layout. Herdr never updates clones, so they miss later fixes to the
+`tabs` mod, `my-toast` of its `toast` mod, and `brands.json` of its `main` layout. Herdr never updates clones, so they miss later fixes to the
 originals. If the sidebar misbehaves after an update, clone the new `spaces` mod and
 re-apply the changes (logos, cards, segments, counts, colors, Paperclip links, the
 "Projects" header) from this folder's `main.js`.

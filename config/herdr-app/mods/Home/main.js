@@ -4,10 +4,11 @@
 // after every terminal in it has closed. Props: { space, folder, repos?, exact? }
 //   repos: where to look for git repos (default: folder)
 //   exact: list only sessions started in folder itself (for the home folder)
+//   notes: the notes file (default: <folder>/NOTES.md; ~/Documents/omarchy-notes.md with exact)
 // Brand details come from my-spaces through shared("brand.info"); data from ./home.py.
 import { View, div, image, svg } from "gpui-kit";
-import { v_flex, h_flex } from "gpui-base";
-import { props, spaces, agents, shared, theme, run, exec, appHome, checking } from "herdr";
+import { v_flex, h_flex, Editor, EditorState } from "gpui-base";
+import { props, spaces, agents, shared, theme, settings, run, exec, appHome, checking, readTextFile, writeTextFile } from "herdr";
 
 const short = (path) => (path ?? "").replace(/^\/home\/[^/]+/, "~");
 const clean = (s) => (s ?? "").replace(/^[^\p{L}\p{N}\p{Ps}\p{Pi}]+/u, "").trim();
@@ -26,13 +27,72 @@ export default class ProjectHome extends View {
   init(_props, cx) {
     this.data = { sessions: null, repos: null, prs: null };
     this.width = 900;
+    // Notes: a markdown file in the project folder, so Claude sessions there can read it too.
+    this.notes = EditorState.new({ language: "markdown", value: "", line_numbers: false, folding: false, soft_wrap: true,
+      font_family: settings().font_family, font_size: 13 });
+    this.saved = null; // the file's text as last read or written (null: no file yet)
+    this.dirty = false;
+    this.notes.on("change", () => { this.dirty = true; });
     if (checking()) return;
+    this.loadNotes(cx);
+    // Save a moment after typing stops; pick up edits made elsewhere when there are none here.
+    cx.timer.every(1500, (cx) => this.saveNotes(cx));
+    cx.timer.every(15000, (cx) => { if (!this.dirty) this.loadNotes(cx); });
     this.load(cx, "sessions");
     this.load(cx, "repos");
     this.load(cx, "prs");
     // Sessions and repos change as you work; pull requests are a network call, so slower.
     cx.timer.every(30000, (cx) => { this.load(cx, "sessions"); this.load(cx, "repos"); });
     cx.timer.every(300000, (cx) => this.load(cx, "prs"));
+  }
+
+  notesPath() {
+    const p = props() ?? {};
+    return p.notes ?? (p.exact ? "/home/kyle/Documents/omarchy-notes.md" : `${p.folder}/NOTES.md`);
+  }
+
+  loadNotes(cx) {
+    cx.spawn(async (cx) => {
+      const text = await readTextFile(this.notesPath()).catch(() => null);
+      if (!this.dirty && text !== this.saved) {
+        this.saved = text;
+        this.notes.set_value(text ?? "");
+        this.dirty = false;
+        cx.notify();
+      }
+    });
+  }
+
+  saveNotes(cx) {
+    if (!this.dirty || this.saving) return;
+    const text = this.notes.value();
+    if (text === (this.saved ?? "")) { this.dirty = false; return; }
+    this.saving = true;
+    this.dirty = false;
+    cx.spawn(async (cx) => {
+      try {
+        await writeTextFile(this.notesPath(), text, this.saved);
+        this.saved = text;
+        this.notesError = null;
+      } catch (e) {
+        // Changed elsewhere since we read it: keep what's typed here, say so, re-read later.
+        this.notesError = "Edited elsewhere at the same time; keeping your version";
+        this.saved = await readTextFile(this.notesPath()).catch(() => this.saved);
+        this.dirty = true;
+      }
+      this.saving = false;
+      cx.notify();
+    });
+  }
+
+  notesBox(t, color) {
+    return v_flex().gap(4).min_w(0)
+      .child(h_flex().h(22).gap(6).items_center().text_size(11).font_medium().text_color(t.dim)
+        .child("NOTES").child(div().flex_1())
+        .child(div().text_size(10.5).text_color(this.notesError ? t.blocked : t.dim)
+          .child(this.notesError ?? this.notesPath().replace(/^\/home\/[^/]+/, "~"))))
+      .child(div().h(200).rounded(8).border(1).border_color(color + "4d").bg(color + "0a").p(6).overflow_hidden()
+        .child(Editor.new(this.notes)));
   }
 
   load(cx, what) {
@@ -154,7 +214,7 @@ export default class ProjectHome extends View {
         .when(Boolean(brand.paperclip), (el) => el.child(this.button("paperclip", "layers", "Paperclip", color, t,
           () => exec("xdg-open", [brand.paperclip])))));
 
-    const left = this.sessions(t, color, id, live);
+    const left = v_flex().gap(18).min_w(0).child(this.sessions(t, color, id, live)).child(this.notesBox(t, color));
     const right = v_flex().gap(18).min_w(0).child(this.repos(t, color, id)).child(this.prs(t, color));
     const body = wide
       ? h_flex().gap(28).items_start().child(left.flex_1()).child(right.flex_1())
