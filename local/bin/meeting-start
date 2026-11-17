@@ -1,0 +1,35 @@
+#!/bin/bash
+# Start a meeting from the right account in one step: pick the org and the
+# meeting service, and it opens in that org's Chrome profile.
+#
+#   meeting-start            menu
+#   meeting-start <label>    e.g. meeting-start "CAVA · Zoom"
+#
+# Google Meet: meet.google.com/new starts an instant meeting right away.
+# Zoom: opens the Zoom web app home, signed in to that profile's account; click
+#       "New meeting" (Zoom has no documented direct link for an instant web meeting).
+set -euo pipefail
+
+# label | profile | url
+OPTIONS=(
+  "Archway · Google Meet|Archway|https://meet.google.com/new"
+  "CAVA · Zoom|CAVA|https://app.zoom.us/wc/home"
+  "TRF · Zoom|TRF|https://app.zoom.us/wc/home"
+  "Personal · Google Meet|Personal|https://meet.google.com/new"
+  "Personal · Zoom|Personal|https://app.zoom.us/wc/home"
+)
+
+labels=()
+for o in "${OPTIONS[@]}"; do labels+=("${o%%|*}"); done
+
+choice=${1:-}
+[[ -n $choice ]] || choice=$(omarchy-menu-select "Start meeting" "${labels[@]}" -- --width 380) || exit 0
+
+for o in "${OPTIONS[@]}"; do
+  if [[ ${o%%|*} == "$choice" ]]; then
+    rest=${o#*|}
+    exec webapp-profile join "${rest%%|*}" "${rest#*|}"
+  fi
+done
+echo "meeting-start: unknown option: $choice" >&2
+exit 1

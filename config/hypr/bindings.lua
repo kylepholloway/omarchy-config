@@ -56,3 +56,6 @@ o.bind("SUPER + SHIFT + S", "Screenshot", "omarchy-capture-screenshot")
 -- OmaCal's agenda popup; press J there to join the current call (Join opens in the
 -- calendar's Chrome profile through link-router)
 o.bind("SUPER + CTRL + J", "Calendar agenda (J joins)", "omarchy-shell shell summon omacal.upcoming")
+
+-- Start a Zoom or Google Meet from the right account (see meeting-start)
+o.bind("SUPER + CTRL + M", "Start meeting", "meeting-start")

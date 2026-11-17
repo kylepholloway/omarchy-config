@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Start Meeting
+Comment=Start a Zoom or Google Meet from the right account
+Exec=meeting-start
+Icon=camera-video
+Terminal=false
