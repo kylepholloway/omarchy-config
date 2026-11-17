@@ -6,7 +6,8 @@ OmaCal, Slack and everything else hand https links to xdg-open, which runs this.
      cal-sync cache) opens in the Chrome profile of the calendar it came from.
   2. Any other Zoom link goes through webapp-profile zoom-join (profile picker,
      or a company Zoom domain mapped in webapp-profile).
-  3. Everything else opens in Chrome exactly as before.
+  3. Sign-in (OAuth) pages from apps ask which Chrome profile to use.
+  4. Everything else opens in Chrome exactly as before.
 
 Calendar-to-profile matching lives in ~/.config/link-router/profiles.conf.
 Only https is routed; http stays on Chrome so Omarchy's browser detection is unchanged.
@@ -23,6 +24,11 @@ HOME = Path.home()
 OMACAL_DB = HOME / ".local/share/com.omacal.app/omacal.db"
 CALSYNC = HOME / ".cache/cal-sync/events.json"
 PROFILES_CONF = HOME / ".config/link-router/profiles.conf"
+SIGN_IN = re.compile(
+    r"^https://(accounts\.google\.com/(o/oauth2|signin/oauth)|login\.microsoftonline\.com/[^/]+/oauth2"
+    r"|login\.live\.com/oauth|([\w-]+\.)?zoom\.us/oauth|slack\.com/oauth)",
+    re.I,
+)
 
 
 def browser(url):
@@ -60,22 +66,27 @@ def load_rules():
     return rules
 
 
-def profile_for(source, rules):
-    source = source.lower()
+def profile_for(names, rules):
+    """names: the OmaCal account email, account display name and calendar name.
+    A rule like "@archway.team" matches an email domain; anything else must equal
+    one of the names (case-insensitive). Feed URLs are never matched, since their
+    random tokens could contain any short word."""
+    names = [n.strip().lower() for n in names if n and n.strip()]
     for match, profile in rules:
-        if match in source:
-            return profile
+        for n in names:
+            if (match.startswith("@") and n.endswith(match)) or n == match:
+                return profile
     return None
 
 
 def from_omacal(key):
-    """Account email / feed URL / calendar name of the OmaCal event holding this link."""
+    """Account email, account name and calendar name of the OmaCal event holding this link."""
     if not OMACAL_DB.exists():
         return None
     try:
         db = sqlite3.connect(f"file:{OMACAL_DB}?mode=ro", uri=True, timeout=1)
         row = db.execute(
-            """SELECT COALESCE(a.email,'') || ' ' || COALESCE(a.server_url,'') || ' ' || COALESCE(c.summary,'')
+            """SELECT COALESCE(a.email,''), COALESCE(a.display_name,''), COALESCE(c.summary,'')
                FROM events e JOIN calendars c ON c.id = e.calendar_id JOIN accounts a ON a.id = c.account_id
                WHERE instr(COALESCE(e.conference_uri,''), ?) OR instr(COALESCE(e.location,''), ?)
                   OR instr(COALESCE(e.description,''), ?)
@@ -83,7 +94,7 @@ def from_omacal(key):
             (key, key, key),
         ).fetchone()
         db.close()
-        return row[0] if row else None
+        return list(row) if row else None
     except sqlite3.Error:
         return None
 
@@ -102,6 +113,11 @@ def main():
     url = sys.argv[1] if len(sys.argv) > 1 else ""
     if not url.lower().startswith("https://"):
         return browser(url) if url else None
+
+    # Sign-in pages started by an app (OmaCal, Slack, CLIs): the account depends
+    # on the Chrome profile, so ask which one instead of using the last-focused.
+    if SIGN_IN.search(url):
+        os.execvp("webapp-profile", ["webapp-profile", "pick", url])
 
     kind, key = meeting_key(url)
     if not kind:

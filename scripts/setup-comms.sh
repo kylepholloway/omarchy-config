@@ -77,18 +77,16 @@ print("    profiles ready")
 PY
 
 # --------------------------------------------------------------- calendar
-say "Calendar sync timer"
-mkdir -p ~/.config/cal-sync
-if [[ ! -e ~/.config/cal-sync/feeds.conf ]]; then
-  cp "$REPO/docs/feeds.conf.example" ~/.config/cal-sync/feeds.conf
-  chmod 600 ~/.config/cal-sync/feeds.conf
-  echo "    add your private calendar addresses to ~/.config/cal-sync/feeds.conf"
+# OmaCal holds the calendars and installs its own bar widget (omacal.upcoming);
+# accounts are added by hand, see docs/comms.md.
+say "Calendar"
+mkdir -p ~/.config/link-router
+if [[ ! -e ~/.config/link-router/profiles.conf ]]; then
+  cp "$REPO/docs/link-router-profiles.conf.example" ~/.config/link-router/profiles.conf
+  echo "    fill in ~/.config/link-router/profiles.conf with your OmaCal account emails"
 fi
-systemctl --user daemon-reload
-systemctl --user enable --now cal-sync.timer cal-notify.timer
-
-say "Bar widget"
+update-desktop-database ~/.local/share/applications 2>/dev/null || true
 omarchy-shell shell rescanPlugins >/dev/null 2>&1 || true
-omarchy bar put kph.calendar --section centerBegin || true
+omarchy bar put omacal.upcoming --section centerBegin || echo "    open OmaCal once, then: omarchy bar put omacal.upcoming --section centerBegin"
 
 say "Done. Open Chrome, sign in to Bitwarden and each org's accounts in its profile."

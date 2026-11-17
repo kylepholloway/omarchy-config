@@ -1,7 +1,0 @@
-[Unit]
-Description=Alert 10 minutes before meetings in the merged calendar
-
-[Service]
-Type=oneshot
-Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin
-ExecStart=%h/.local/bin/cal-notify

@@ -1,6 +1,7 @@
 # Which Chrome profile a calendar's meetings open in.
-# Left side: any part of the OmaCal account email, feed URL, or calendar name.
+# Left side: an OmaCal account email, an @domain, or an account/calendar name (exact).
 # First match wins. Right side: Personal, Archway, CAVA or TRF.
 you@gmail.com = Personal
 @yourcompany.com = Archway
-outlook.office365.com/owa/calendar/<cava-feed-id> = CAVA
+CAVA = CAVA
+TRF = TRF

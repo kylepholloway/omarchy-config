@@ -21,7 +21,7 @@
           "id": "omarchy.indicators"
         },
         {
-          "id": "kph.calendar"
+          "id": "omacal.upcoming"
         }
       ],
       "center": [
@@ -29,7 +29,7 @@
           "id": "omarchy.clock",
           "format": "dddd h:mm AP",
           "formatAlt": "d MMMM 'W'ww yyyy",
-          "verticalFormat": "h\n—\nmm"
+          "verticalFormat": "h\n\u2014\nmm"
         }
       ],
       "centerEnd": [

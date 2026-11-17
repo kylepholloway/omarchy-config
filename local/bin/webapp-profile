@@ -4,6 +4,7 @@
 #   webapp-profile <app> [profile]     e.g. webapp-profile outlook CAVA
 #   webapp-profile zoom-join <url>     zoommtg:// or https://*.zoom.us link
 #   webapp-profile join <profile> <url>  open a meeting link in that profile
+#   webapp-profile pick <url>          ask which profile, then open the link there
 #
 # With no profile, apps used by one profile open straight away; otherwise an
 # Omarchy picker asks which account to use.
@@ -62,6 +63,11 @@ zoom_web_url() { # turn a Zoom link into a web-client join URL
 
 app=${1:-}
 case $app in
+pick) # pick <url>: ask which profile, then open the link there in a normal tab
+  link=${2:?url}
+  profile=$(pick_profile "Open in" "${PROFILE_ORDER[@]}") || exit 0
+  exec omarchy-launch-browser --profile-directory="${PROFILE_DIR[$profile]}" "$link"
+  ;;
 join) # join <profile> <meeting url>: open a calendar meeting in the calendar's own profile
   profile=${2:?profile}; link=${3:?url}
   case $link in

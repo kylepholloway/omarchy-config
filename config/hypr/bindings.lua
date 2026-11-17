@@ -53,5 +53,6 @@ hl.unbind("SUPER + CTRL + K")         -- cheat sheet for the Herdr terminal app
 o.rebind("SUPER + SHIFT + code:13", "Screenshot (Mac Cmd+Shift+4)", "omarchy-capture-screenshot")
 o.bind("SUPER + SHIFT + S", "Screenshot", "omarchy-capture-screenshot")
 
--- Join the current or next meeting in its calendar's Chrome profile (see cal-join-next)
-o.bind("SUPER + CTRL + J", "Join next meeting", "cal-join-next")
+-- OmaCal's agenda popup; press J there to join the current call (Join opens in the
+-- calendar's Chrome profile through link-router)
+o.bind("SUPER + CTRL + J", "Calendar agenda (J joins)", "omarchy-shell shell summon omacal.upcoming")
