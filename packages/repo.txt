@@ -20,6 +20,7 @@ cups-browsed
 cups-filters
 cups-pdf
 ddcutil
+discord
 docker
 docker-buildx
 docker-compose
@@ -99,8 +100,8 @@ noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
 nss-mdns
-obs-studio
 obsidian
+obs-studio
 omacalc
 omacut
 omarchy

@@ -33,7 +33,6 @@ declare -A APPS=(
   [outlook]="https://outlook.office.com/mail/|CAVA TRF"
   [outlook-cal]="https://outlook.office.com/calendar/|CAVA TRF"
   [teams]="https://teams.cloud.microsoft/|CAVA TRF"
-  [discord]="https://discord.com/channels/@me|Personal"
   [browser]="|Personal Archway CAVA TRF"
 )
 
