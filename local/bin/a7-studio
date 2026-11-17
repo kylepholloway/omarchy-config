@@ -14,7 +14,9 @@ set -euo pipefail
 OUT=/dev/video20
 LUT_DIR="$HOME/.config/a7-studio"
 CAM=$(ls /dev/v4l/by-id/usb-Sony_ILCE-7M4_*-video-index0 2>/dev/null | head -1 || true)
-[[ -n $CAM ]] || { echo "a7-studio: camera not found (USB Streaming mode on?)" >&2; exit 1; }
+# No camera (unplugged or not in USB Streaming mode): stop cleanly so systemd does not
+# retry; udev starts us again when it reconnects.
+[[ -n $CAM ]] || { echo "a7-studio: camera not found (USB Streaming mode on?)" >&2; exit 0; }
 [[ -e $OUT ]] || { echo "a7-studio: $OUT missing (v4l2loopback not loaded)" >&2; exit 1; }
 
 # The active LUT is chosen with a7-lut (a path under luts/ written to "active").
