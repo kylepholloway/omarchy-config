@@ -59,3 +59,32 @@ o.bind("SUPER + CTRL + J", "Calendar agenda (J joins)", "omarchy-shell shell sum
 
 -- Start a Zoom or Google Meet from the right account (see meeting-start)
 o.bind("SUPER + CTRL + M", "Start meeting", "meeting-start")
+
+-- Universal copy/paste in Herdr: Omarchy sends Ctrl+Shift+C/V only to windows
+-- tagged "terminal", and Herdr isn't tagged (tagging it would also make it
+-- transparent). Herdr maps Ctrl+V to image paste, so text paste needs Ctrl+Shift+V.
+local function kyle_send_once(mods, key)
+  hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "down" }))
+  hl.timer(function()
+    hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "up" }))
+  end, { timeout = 50, type = "oneshot" })
+end
+
+local function kyle_is_terminal_like()
+  local w = hl.get_active_window()
+  if not w then return false end
+  if w.class == "herdr-app" then return true end
+  for _, tag in ipairs(w.tags or {}) do
+    if tag:gsub("%*$", "") == "terminal" then return true end
+  end
+  return false
+end
+
+local function kyle_clipboard(key)
+  return function()
+    if kyle_is_terminal_like() then kyle_send_once("CTRL SHIFT", key) else kyle_send_once("CTRL", key) end
+  end
+end
+
+o.rebind("SUPER + C", "Universal copy", kyle_clipboard("C"))
+o.rebind("SUPER + V", "Universal paste", kyle_clipboard("V"))
