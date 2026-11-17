@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Link Router
+Comment=Opens meeting links in the right Chrome profile, everything else in Chrome
+Exec=link-router %u
+Icon=google-chrome
+NoDisplay=true
+Terminal=false
+MimeType=x-scheme-handler/https;

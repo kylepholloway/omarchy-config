@@ -21,3 +21,6 @@ known_hosts
 
 # Private calendar feed addresses (cal-sync)
 cal-sync/feeds.conf
+
+# Calendar-to-profile map for link-router (has account emails)
+link-router/profiles.conf

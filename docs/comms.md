@@ -49,6 +49,19 @@ Status on November 16, 2026: Personal feed connected. Archway, CAVA and TRF stil
 their addresses; publishing the CAVA and TRF Outlook calendars is Kyle's call (it
 creates an unauthenticated link to client calendars).
 
+## Link router
+
+`local/bin/link-router` handles every `https` link (set in `config/hyprland-mimeapps.list`,
+which Omarchy reads before `mimeapps.list`; `http` stays on Chrome so Omarchy's browser
+detection is unchanged). A Zoom, Meet, Teams or Webex link that belongs to an OmaCal or
+cal-sync event opens in that calendar's Chrome profile; other Zoom links get the profile
+picker; everything else goes to `omarchy-launch-browser` as before. So OmaCal's Join and
+meeting links clicked in Slack land in the right account.
+
+Which calendar maps to which profile: `~/.config/link-router/profiles.conf` (not in the
+repo; template `docs/link-router-profiles.conf.example`). If an Omarchy update rewrites
+`hyprland-mimeapps.list`, links stop being routed: re-link it from the repo.
+
 ## Things that can't be captured as files
 
 - **Slack menu bar:** Window > uncheck "Always Show Menu Bar" (Alt shows it).
