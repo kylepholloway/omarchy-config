@@ -52,33 +52,46 @@ else
 fi
 
 if [[ -z $lut && $graded == 0 ]]; then
-  # Nothing to do: the camera's NV12 is already TV range, so forward frames untouched (~0% CPU).
-  exec ffmpeg -hide_banner -loglevel warning -nostdin "${input[@]}" -c:v copy "${out[@]}"
+  # Nothing to grade: the camera's NV12 is already TV range. Only repack it to I420,
+  # the same format the graded path outputs, so apps that keep the camera open across
+  # a restart (Zoom) never see the format change (that showed as a gray picture).
+  exec ffmpeg -hide_banner -loglevel warning -nostdin -fflags nobuffer -flags low_delay "${input[@]}" \
+    -vf format=yuv420p -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709 "${out[@]}"
 fi
 
 f() { python3 -c "print(f'{$1:.4f}')"; }
-chain="format=gbrp"
-if [[ -n $lut ]]; then
-  chain+=",lut3d=file='${lut//\'/\\\'}':interp=tetrahedral"
-  echo "a7-studio: applying LUT $(basename "$lut")"
-fi
-if [[ $graded == 1 ]]; then
-  # Tone curve: fade lifts black, shadows/highlights bend the quarter points,
-  # contrast steepens or flattens around the middle, brightness shifts it all.
-  c=${G[contrast]}; b=${G[brightness]}
+
+# Grade without a LUT: work directly on the camera's YUV with lookup tables
+# (lutyuv is computed once, then each pixel is a table read), so it stays light.
+# Tone curve on luma: fade lifts black, shadows/highlights bend the quarter
+# points, contrast steepens or flattens around the middle, brightness shifts it.
+grade_yuv() {
+  local c=${G[contrast]} b=${G[brightness]}
+  local y0 y1 y2 y3 y4 w s
   y0=$(f "max(0, ${G[fade]}*0.025 + $b*0.01)")
   y1=$(f "min(1,max(0, 0.25 - $c*0.012 + ${G[shadows]}*0.012 + $b*0.015))")
   y2=$(f "min(1,max(0, 0.5 + $b*0.02))")
   y3=$(f "min(1,max(0, 0.75 + $c*0.012 - ${G[highlights]}*0.012 + $b*0.015))")
   y4=$(f "min(1,max(0, 1 - ${G[highlights]}*0.008))")
-  chain+=",curves=all='0/$y0 0.25/$y1 0.5/$y2 0.75/$y3 1/$y4'"
-  w=$(f "${G[warmth]}*0.03")
-  [[ ${G[warmth]} != 0 ]] && chain+=",colorbalance=rm=$w:bm=$(f "-1*$w")"
-  echo "a7-studio: grade ${G[*]}"
-fi
-chain+=",scale=out_range=limited:out_color_matrix=bt709,format=yuv420p"
-[[ ${G[saturation]} != 0 ]] && chain+=",hue=s=$(f "1 + ${G[saturation]}*0.08")"
+  # x = luma in 0..1 of TV range; piecewise-linear through the five points.
+  local x="clip((val-16)/219,0,1)"
+  local seg="if(lt($x,0.25),$y0+($y1-$y0)*$x/0.25,if(lt($x,0.5),$y1+($y2-$y1)*($x-0.25)/0.25,if(lt($x,0.75),$y2+($y3-$y2)*($x-0.5)/0.25,$y3+($y4-$y3)*($x-0.75)/0.25)))"
+  # Saturation scales chroma around neutral; warmth nudges toward red/yellow (V up, U down).
+  s=$(f "1 + ${G[saturation]}*0.08"); w=$(f "${G[warmth]}*2.0")
+  echo "lutyuv=y='16+219*($seg)':u='clip(128+(val-128)*$s-$w,16,240)':v='clip(128+(val-128)*$s+$w,16,240)'"
+}
 
-exec ffmpeg -hide_banner -loglevel warning -nostdin "${input[@]}" -vf "$chain" \
+if [[ -z $lut ]]; then
+  echo "a7-studio: grade ${G[*]}"
+  chain="format=yuv420p,$(grade_yuv)"
+else
+  # A LUT needs RGB; apply the grade first (YUV), then the LUT.
+  echo "a7-studio: applying LUT $(basename "$lut")"
+  chain="format=yuv420p"
+  [[ $graded == 1 ]] && chain+=",$(grade_yuv)"
+  chain+=",format=gbrp,lut3d=file='${lut//\'/\\\'}':interp=tetrahedral,scale=out_range=limited:out_color_matrix=bt709,format=yuv420p"
+fi
+
+exec ffmpeg -hide_banner -loglevel warning -nostdin -fflags nobuffer -flags low_delay "${input[@]}" -filter_threads 2 -vf "$chain" \
   -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709 \
   "${out[@]}"
