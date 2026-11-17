@@ -6,7 +6,7 @@
 import { View, div, svg, image } from "gpui-kit";
 import { brandFor, logoPath } from "./brands.js";
 import { v_flex, h_flex, ScrollHandle } from "gpui-base";
-import { spaces, machines, panes, agents, setAgentOrder, setWindowTitle, run, openOverlay, exec, hc, theme, shared, setShared, watchFolder, window, layout } from "herdr";
+import { checking, spaces, machines, panes, agents, setAgentOrder, setWindowTitle, run, openOverlay, exec, hc, theme, shared, setShared, watchFolder, window, layout } from "herdr";
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -147,6 +147,12 @@ export default class Spaces extends View {
     try { this.changed = JSON.parse(localStorage.getItem("changed") ?? "{}") || {}; } catch { this.changed = {}; }
     // The minutes on the cards: data, so a slow timer is enough.
     cx.timer.every(30000, (cx) => cx.notify());
+    // Pane corners follow Omarchy's window rounding (Hyprland decoration:rounding), so the
+    // corners toggle changes Herdr too. Checked gently; the layout is only written on a change.
+    if (!checking()) {
+      this.syncRounding(cx);
+      cx.timer.every(20000, (cx) => this.syncRounding(cx));
+    }
   }
 
   checkNew(cx) {
@@ -630,6 +636,24 @@ export default class Spaces extends View {
       .child(svg("mods/workspace-chrome/layers.svg").size(11).flex_none())
       .child(div().flex_none().font_semibold().child(prefix))
       .child(div().truncate().child("Open in Paperclip"));
+  }
+
+  syncRounding(cx) {
+    cx.spawn(async () => {
+      const r = await exec("hyprctl", ["getoption", "decoration:rounding", "-j"], { timeout: 5000 }).catch(() => null);
+      let px;
+      try { px = JSON.parse(r?.stdout ?? "").int; } catch { return; }
+      if (typeof px !== "number" || shared("layout") !== "brands") return;
+      const tree = JSON.parse(JSON.stringify(layout()));
+      let changed = false;
+      const walk = (n) => {
+        const pane = n?.content?.pane;
+        if (pane && pane.radius !== px) { pane.radius = px; changed = true; }
+        for (const c of n?.children ?? []) walk(c);
+      };
+      walk(tree);
+      if (changed) run("layout.set", { layout: tree });
+    });
   }
 
   // Note when each agent's status changes; forget agents gone for a month.

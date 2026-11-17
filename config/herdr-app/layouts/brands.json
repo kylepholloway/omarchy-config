@@ -100,9 +100,9 @@
                   },
                   "focus": {
                     "width": 1,
-                    "color": "accent"
+                    "color": "selected"
                   },
-                  "radius": 10,
+                  "radius": 0,
                   "gap": 8,
                   "lone": true
                 }
@@ -160,6 +160,10 @@
     }
   ],
   "background": "canvas",
+  "theme": {
+    "light": "banana-blueberry",
+    "dark": "omarchy"
+  },
   "terminal_padding": [
     14,
     12

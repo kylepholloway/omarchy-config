@@ -38,6 +38,11 @@ project's coding agents as cards. It replaces Herdr's separate Agents panel.
   while Herdr isn't the focused window, an agent's done or needs-you alert also goes to
   Omarchy's notification center. Clicking it runs the alert's action (go to the agent) and
   focuses Herdr. In-app toasts are unchanged.
+- **Focused pane outline** uses the theme's purple (`selected`) instead of the bright accent,
+  so it follows Omarchy theme changes without shouting. Pane corners follow Omarchy's window
+  rounding (Hyprland `decoration:rounding`, 0 today; Omarchy's rounded-corners toggle makes
+  it 6): `my-spaces` checks every 20 seconds and rewrites the Brands layout only when it
+  changes.
 - **Window title** names the active project ("Archway · Herdr") for the window switcher.
 - **Tab bar** (`my-tabs`, a clone of Herdr's `tabs`): the active tab has the project's brand
   outline and tint; the Home tab shows the project logo.
