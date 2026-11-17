@@ -105,6 +105,17 @@ camera, **A7 IV Studio** (`/dev/video20`), passthrough at ~0% CPU. LUTs (~65% of
 the **Camera LUT** launcher (or `a7-lut`, `a7-lut next|prev|none`) picks one; **Camera
 Preview** (`a7-lut preview`) shows the result live. LUT packs stay out of the repo.
 
+**Grade** (`a7-grade`): with the camera on the neutral **NT** Creative Look, tone and color
+are adjusted in software instead of in camera menus: `a7-grade contrast -2 shadows 2 fade 1`
+(keys contrast, shadows, highlights, fade, saturation, warmth, brightness; -5..5),
+`a7-grade` shows it, `a7-grade reset` clears it. Stored in `~/.config/a7-studio/grade.conf`.
+`A7_STUDIO_TEST=1 a7-studio` runs the current grade/LUT on a test pattern.
+
+**Picture Profile (S-Log3) does not reach the USB stream**: the camera disables Picture
+Profile while USB streaming (measured: blacks at 18, not S-Log3's ~40+). The Phantom
+S-Log3 LUTs therefore don't match the USB feed; true S-Log3 needs an HDMI capture card.
+The camera's streaming resolution menu is Shooting → USB Streaming (keep HD 1080p 30p).
+
 Pieces: `pacman -S dkms v4l2loopback-dkms v4l2loopback-utils` (needs
 `linux-omarchy-headers`); `system/modprobe/*` to `/etc/modules-load.d/v4l2loopback.conf`
 and `/etc/modprobe.d/v4l2loopback.conf`; `system/udev/90-a7-studio.rules` to

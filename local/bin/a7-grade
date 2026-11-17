@@ -1,0 +1,34 @@
+#!/bin/bash
+# Adjust the A7 IV Studio grade live (see a7-studio). Values are -5..5 (fade 0..5).
+#
+#   a7-grade                          show the current grade
+#   a7-grade contrast -2 shadows 1    set one or more values, then restart the feed
+#   a7-grade reset                    back to the straight camera look
+#
+# Keys: contrast shadows highlights fade saturation warmth brightness
+set -euo pipefail
+CONF="$HOME/.config/a7-studio/grade.conf"
+KEYS=(contrast shadows highlights fade saturation warmth brightness)
+mkdir -p "${CONF%/*}"
+
+get() { { grep -E "^\s*$1\s*=" "$CONF" 2>/dev/null || true; } | tail -1 | cut -d= -f2 | tr -d '[:space:]'; }
+show() { for k in "${KEYS[@]}"; do printf '%-11s %s\n' "$k" "$(v=$(get "$k"); echo "${v:-0}")"; done; }
+
+if (( $# == 0 )); then show; exit 0; fi
+if [[ $1 == reset ]]; then
+  rm -f "$CONF"
+else
+  (( $# % 2 == 0 )) || { echo "usage: a7-grade <key> <value> [<key> <value>...]" >&2; exit 1; }
+  declare -A cur=()
+  for k in "${KEYS[@]}"; do v=$(get "$k"); cur[$k]=${v:-0}; done
+  while (( $# )); do
+    k=$1 v=$2; shift 2
+    [[ " ${KEYS[*]} " == *" $k "* ]] || { echo "unknown key: $k (use: ${KEYS[*]})" >&2; exit 1; }
+    [[ $v =~ ^-?[0-9]+(\.[0-9]+)?$ ]] || { echo "not a number: $v" >&2; exit 1; }
+    cur[$k]=$v
+  done
+  { echo "# A7 IV Studio grade (a7-grade). 0 = as the camera sends it."
+    for k in "${KEYS[@]}"; do echo "$k = ${cur[$k]}"; done; } >"$CONF"
+fi
+systemctl --user restart a7-studio.service 2>/dev/null || true
+show
