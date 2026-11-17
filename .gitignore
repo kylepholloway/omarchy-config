@@ -24,3 +24,7 @@ cal-sync/feeds.conf
 
 # Calendar-to-profile map for link-router (has account emails)
 link-router/profiles.conf
+
+# Herdr writes these into every mod folder on start
+config/herdr-app/mods/*/gpui-kit.d.ts
+config/herdr-app/mods/*/jsconfig.json

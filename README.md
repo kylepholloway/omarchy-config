@@ -66,6 +66,9 @@ Herdr preferences, and works for stock themes as well as these two custom themes
 The original standalone Banana Blueberry Herdr theme is retained.
 Run `python scripts/verify-herdr-theme-sync.py` for isolated bridge checks.
 
+Herdr's **Brands** layout (Projects sidebar with company logos, brand colors and
+agent cards) lives in `config/herdr-app/`; see [docs/herdr-app.md](docs/herdr-app.md).
+
 The `60-agent-colors` hook keeps Prismantis's prompt frame, label, text, and
 fill on the terminal palette, preserving its framed layout and other options.
 It also installs a custom `omarchy` Codex theme for code, Markdown, links, and
