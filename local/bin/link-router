@@ -7,7 +7,7 @@ OmaCal, Slack and everything else hand https links to xdg-open, which runs this.
   2. Any other Zoom link goes through webapp-profile zoom-join (profile picker,
      or a company Zoom domain mapped in webapp-profile).
   3. Sign-in (OAuth) pages from apps ask which Chrome profile to use.
-  4. Everything else opens in Chrome exactly as before.
+  4. Everything else opens in Chrome's Personal profile (not the last-used one).
 
 Calendar-to-profile matching lives in ~/.config/link-router/profiles.conf.
 Only https is routed; http stays on Chrome so Omarchy's browser detection is unchanged.
@@ -26,13 +26,18 @@ CALSYNC = HOME / ".cache/cal-sync/events.json"
 PROFILES_CONF = HOME / ".config/link-router/profiles.conf"
 SIGN_IN = re.compile(
     r"^https://(accounts\.google\.com/(o/oauth2|signin/oauth)|login\.microsoftonline\.com/[^/]+/oauth2"
-    r"|login\.live\.com/oauth|([\w-]+\.)?zoom\.us/oauth|slack\.com/oauth)",
+    r"|login\.live\.com/oauth|([\w-]+\.)?zoom\.us/oauth|slack\.com/oauth"
+    r"|[^/?#]+/(.*/)?oauth2?/authorize)",
     re.I,
 )
 
 
+DEFAULT_PROFILE_DIR = "Default"  # Personal: ordinary links open here, not in the last-used profile
+
+
 def browser(url):
-    os.execvp("omarchy-launch-browser", ["omarchy-launch-browser", url])
+    os.execvp("omarchy-launch-browser",
+              ["omarchy-launch-browser", f"--profile-directory={DEFAULT_PROFILE_DIR}", url])
 
 
 def meeting_key(url):
