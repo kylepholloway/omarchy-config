@@ -26,14 +26,14 @@ and Slate.
 | `btop.theme`        | meters follow ok→warn→crit; load follows the Signal ramp    |
 | `neovim.lua`        | tokyonight remapped onto Archway tokens (no new plugin)     |
 | `takeover/`         | assets the `theme-set` hook swaps in and out (see below)     |
-| `backgrounds.py`    | generator for all ten wallpapers                             |
+| `backgrounds.py`    | generator for the eight wallpapers                             |
 | `vscode.json`       | Tokyo Night as the nearest shipped VS Code base             |
 | `icons.theme`       | `Yaru-blue`                                                  |
 | `keyboard.rgb`      | Signal-400                                                   |
 | `chromium.theme`    | Ink-950 as the browser frame colour                          |
 | `unlock.png`        | Plymouth boot + SDDM login mark — pixel art, 581×490          |
 | `preview*.png`      | theme-switcher and boot-screen previews                      |
-| `backgrounds/`      | seven 5120×2880 wallpapers (see below)                       |
+| `backgrounds/`      | eight 5120×2880 wallpapers (see below)                       |
 
 Terminal configs (`alacritty.toml`, `foot.ini`, `kitty.conf`, `ghostty.conf`)
 are generated from `colors.toml` by Omarchy's own templates, so they stay in
@@ -106,53 +106,30 @@ PNG for the flat ones). Omarchy accepts both. The whole set is 3.1 MB.
 Regenerate with `backgrounds.py` (writes SVG; render at 5120x2880 with
 `rsvg-convert`), or drop your own into `~/.config/omarchy/backgrounds/archway/`.
 
-## Branding
+## Branding and switching back
 
-`~/.config/omarchy/branding/screensaver.txt` and `about.txt` carry the
-Archway mark in block characters. The originals were backed up next to them
-as `*.bak.<epoch>`; `omarchy branding screensaver reset` restores Omarchy's.
+The `archway-takeover` theme-set hook applies the original block-art
+screensaver, About mark, lazygit colors, a Signal-blue prompt, and fastfetch
+logo color. It snapshots your existing files under
+`~/.local/state/omarchy/archway-takeover/` before changing them and restores
+those exact files when leaving Archway. Files that did not exist are removed.
+Edits you make while Archway is active are kept. Reapplying is idempotent,
+and a delayed hook for an older selection is ignored.
 
+The prompt is derived from your saved user configuration, retaining your
+modules and layout. The hook never resets another theme to stock settings.
 
-## Scoping — what reverts when you switch themes
+All other theme files are scoped by Omarchy's normal theme staging. Terminal
+configs, Helix, VS Code, Obsidian, and agent colors are generated from
+`colors.toml`; no VS Code marketplace extension is needed. The custom
+Neovim colors use the already installed Tokyo Night plugin.
 
-**Everything in this directory is scoped.** `omarchy-theme-set` rebuilds
-`~/.local/state/omarchy/current/theme` from scratch on every switch, so the
-palette, Hyprland chrome, shell, btop, neovim, icons, keyboard, chromium and
-backgrounds all revert on their own.
+The boot/login mark and previews are included as assets. System boot and
+login settings are separate from desktop theme switching.
 
-There is no `vscode.json` here on purpose. `omarchy-theme-set-vscode` prefers a
-theme's `vscode.json` (a named third-party extension) over the theme it
-generates from `colors.toml`, so shipping one would suppress the real Archway
-theme in favour of somebody else's. Without it, Omarchy builds a local
-extension straight from these tokens — `#0b0e14` editor, `#e0e5ec` text,
-`#6b8afd` focus.
+Switch with `omarchy theme set archway`; cycle the eight wallpapers with
+`omarchy theme bg next` or `Super+Ctrl+Space`.
 
-**Four things live outside this directory** and would otherwise persist after
-switching away, so `hooks/theme-set.d/archway-takeover` installs them for
-`archway` and hands them back to Omarchy for every other theme:
-
-| What | On Archway | On any other theme |
-|---|---|---|
-| `branding/screensaver.txt` | Archway block art | `$OMARCHY_PATH/logo.txt` |
-| `branding/about.txt` (fastfetch logo) | Archway mark | `$OMARCHY_PATH/icon.txt` |
-| `fastfetch/config.jsonc` | logo recoloured to accent | removed → falls back to `/etc` |
-| `starship.toml` | accent prompt, crit-red error glyph | Omarchy's default |
-| `lazygit/config.yml` | Archway theme block | emptied (Omarchy ships it empty) |
-
-fastfetch and starship are **derived** from Omarchy's current defaults by the
-hook rather than forked, so upstream changes to either still flow through. Only
-the logo takes the accent — the three fastfetch module sections keep their own
-colours, because an accent used everywhere means nothing.
-
-**Not scoped, deliberately: the boot and login screens.** They live in
-`/usr/share`, need sudo, and rebuild the initramfs — far too heavy for a theme
-switch. Set them once and undo them by hand:
-
-```bash
-omarchy plymouth set by theme archway
-omarchy plymouth reset
-```
-
-A `plymouth` or `omarchy` package update can overwrite
-`/usr/share/plymouth/themes/omarchy`; re-run the set command if the boot screen
-ever reverts.
+The repo's `50-herdr-desktop` theme-set hook also updates Herdr Desktop's
+interface and terminal colors automatically, using the generated `omarchy`
+Herdr theme. It works alongside the scoped Archway branding hook.

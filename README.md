@@ -39,6 +39,44 @@ Flags: `--no-packages`, `--no-plugins`, `--help`.
 | `packages/omarchy-plugins.txt` | Shell plugin git URLs (cloned, not vendored) |
 | `scripts/capture.sh` | Re-capture package + plugin lists after changes |
 
+## Desktop themes
+
+- **Banana Blueberry** — completed Mac Ghostty palette, matching colors in all four
+  terminals, cyan/lilac window borders and shell controls, and three illustrated fruit wallpapers (the five original backgrounds are archived).
+  Run `omarchy theme set banana-blueberry`.
+- **Archway** — restored Ink/Slate/Signal palette, eight original 5K wallpapers,
+  custom shell, Neovim and btop colors, and scoped Archway branding.
+  Run `omarchy theme set archway`.
+
+Cycle backgrounds with `omarchy theme bg next` (`Super+Ctrl+Space`). Theme READMEs
+under `config/omarchy/themes/` describe the assets and regeneration commands.
+Run `python scripts/verify-themes.py` to build and validate the installed themes in
+temporary homes and exercise the branding hook without altering your desktop.
+
+The Archway hook saves your existing prompt, lazygit, fastfetch, and branding
+files before activation and restores them when leaving. It preserves edits made
+while Archway is active. Saved originals live under
+`~/.local/state/omarchy/archway-takeover/` until you switch away.
+
+Herdr Desktop follows the selected Omarchy theme through the `50-herdr-desktop`
+theme-set hook. It generates `~/.config/herdr-app/themes/omarchy.json` from the
+active palette and terminal config, then selects it through Herdr's supported
+command. This updates the interface and existing terminals live, preserves other
+Herdr preferences, and works for stock themes as well as these two custom themes.
+The original standalone Banana Blueberry Herdr theme is retained.
+Run `python scripts/verify-herdr-theme-sync.py` for isolated bridge checks.
+
+The `60-agent-colors` hook keeps Prismantis's prompt frame, label, text, and
+fill on the terminal palette, preserving its framed layout and other options.
+It also installs a custom `omarchy` Codex theme for code, Markdown, links, and
+UI accents. Both use ANSI palette references, so after the first activation
+they follow future terminal theme changes without regenerating fixed RGB values.
+For already running sessions, use `/reload-plugins` in Claude and select
+`omarchy` through `/theme` in Codex once. Codex retains its native prompt layout;
+the Prismantis chat bubble layout is Claude-specific. New sessions load the
+saved settings automatically. Run `python scripts/verify-agent-colors.py` to
+validate the integrations in a temporary home.
+
 ## Staying in sync
 
 Three layers, so nothing gets missed when you change things on the fly:
@@ -75,8 +113,9 @@ Config edits are already here.
 `.driftignore` lists files that differ from stock on purpose but must not be tracked —
 currently everything written by the `archway-takeover` theme hook (`starship.toml`,
 `lazygit/config.yml`, `fastfetch/config.jsonc`, `omarchy/branding/*`). Those are
-*derived*; their source of truth is `config/omarchy/themes/archway/takeover/`.
-Tracking them would fight the hook and freeze out upstream improvements.
+*derived* while Archway is active; branding assets come from
+`config/omarchy/themes/archway/takeover/`, and the prompt is derived from your
+saved user configuration. The hook restores your previous files on exit.
 
 ## Machine-specific config
 

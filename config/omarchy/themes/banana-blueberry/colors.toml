@@ -1,0 +1,43 @@
+# Banana Blueberry, from Kyle's Mac (Ghostty theme + the herdr/Claude Code palette built on it).
+mode = "dark"
+
+# Accent: the cyan the Mac's herdr and Claude Code theme used as accent.
+accent = "#22e8df"
+selection = "#3d2e55"
+selection_background = "#3d2e55"
+selection_foreground = "#f4f4f4"
+muted = "#8b90a3"
+
+background = "#191323"
+dark_background = "#17141f"
+darker_background = "#110d19"
+lighter_background = "#262034"
+
+foreground = "#cccccc"
+dark_foreground = "#8b90a3"
+light_foreground = "#f1f1f1"
+bright_foreground = "#ffffff"
+
+red = "#ff6b7f"
+yellow = "#e6c62f"
+orange = "#e07d13"
+green = "#00bd9c"
+cyan = "#56b6c2"
+blue = "#22e8df"
+magenta = "#dc396a"
+brown = "#8a5a2b"
+purple = "#b48cf2"
+
+# The Mac palette's slot 9 is purple, not a brighter red; it is kept that way.
+bright_red = "#b48cf2"
+bright_yellow = "#f9e46b"
+bright_green = "#98c379"
+bright_cyan = "#bcf3ff"
+bright_blue = "#91fff4"
+bright_magenta = "#da70d6"
+
+# Window chrome follows the Mac palette: cyan focus with a blueberry edge.
+hyprland_active_border = "rgba(22e8dfff) rgba(b48cf2ff) 135deg"
+hyprland_inactive_border = "rgba(3d2e55aa)"
+active_border_color = "#22e8df"
+active_tab_background = "#262034"

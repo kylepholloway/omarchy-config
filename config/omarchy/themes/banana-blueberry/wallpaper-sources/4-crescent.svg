@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="5120" height="2880" viewBox="0 0 2560 1440">
+<defs>
+ <radialGradient id="berry"><stop stop-color="#59407d" stop-opacity=".60"/><stop offset="1" stop-color="#191323" stop-opacity="0"/></radialGradient>
+ <linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#22e8df" stop-opacity=".5"/><stop offset=".5" stop-color="#b48cf2" stop-opacity=".4"/><stop offset="1" stop-color="#e6c62f" stop-opacity=".32"/></linearGradient>
+ <radialGradient id="gold"><stop stop-color="#e6c62f" stop-opacity=".13"/><stop offset="1" stop-color="#191323" stop-opacity="0"/></radialGradient>
+</defs><rect width="2560" height="1440" fill="#191323"/><ellipse cx="1670" cy="680" rx="800" ry="660" fill="url(#gold)"/>
+<ellipse cx="1100" cy="1000" rx="1000" ry="650" fill="url(#berry)"/>
+<path d="M 1760 390 A 330 330 0 1 1 1400 900 A 355 355 0 0 0 1760 390 Z" fill="#e6c62f" fill-opacity=".52"/>
+<path d="M 1760 390 A 330 330 0 1 1 1400 900" fill="none" stroke="#f9e46b" stroke-opacity=".5"/>
+<circle cx="1475" cy="529" r="5" fill="#22e8df" fill-opacity=".8"/></svg>

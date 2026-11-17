@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="5120" height="2880" viewBox="0 0 2560 1440">
+<defs>
+ <radialGradient id="berry"><stop stop-color="#59407d" stop-opacity=".60"/><stop offset="1" stop-color="#191323" stop-opacity="0"/></radialGradient>
+ <linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#22e8df" stop-opacity=".5"/><stop offset=".5" stop-color="#b48cf2" stop-opacity=".4"/><stop offset="1" stop-color="#e6c62f" stop-opacity=".32"/></linearGradient>
+ <radialGradient id="gold"><stop stop-color="#e6c62f" stop-opacity=".13"/><stop offset="1" stop-color="#191323" stop-opacity="0"/></radialGradient>
+</defs><rect width="2560" height="1440" fill="#191323"/><ellipse cx="1400" cy="950" rx="1400" ry="850" fill="url(#berry)"/>
+<path d="M -200 1260 C 650 1600 1120 320 2760 680 L 2760 850 C 1140 440 720 1660 -200 1410 Z" fill="url(#ribbon)" opacity=".15"/>
+<g fill="none" stroke="url(#ribbon)">
+ <path d="M -200 1260 C 650 1600 1120 320 2760 680" stroke-width="2"/>
+ <path d="M -200 1310 C 650 1650 1120 370 2760 730" opacity=".5"/>
+ <path d="M -200 1360 C 650 1700 1120 420 2760 780" opacity=".22"/>
+</g></svg>

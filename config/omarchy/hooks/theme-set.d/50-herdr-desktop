@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+# Follow Omarchy's palette in Herdr Desktop without restarting terminals.
+exec python3 - "$@" <<'HERDR_PY'
+import fcntl
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+
+home = Path.home()
+app = Path(os.environ.get('HERDR_APP_HOME', home / '.config/herdr-app')).expanduser()
+if not app.is_dir():
+    sys.exit(0)
+
+state = home / '.local/state/omarchy'
+state.mkdir(parents=True, exist_ok=True)
+lock = (state / 'herdr-desktop-theme.lock').open('w')
+fcntl.flock(lock, fcntl.LOCK_EX)
+requested = sys.argv[1] if len(sys.argv) > 1 else ''
+current = state / 'current/theme.name'
+if not requested or not current.exists() or current.read_text().strip() != requested:
+    sys.exit(0)
+
+theme = state / 'current/theme'
+if not (theme / 'colors.toml').is_file():
+    sys.exit(0)
+
+# The shared resolver handles old palettes and derived semantic roles too.
+resolved = subprocess.run(
+    ['omarchy-theme-color', '--file', str(theme / 'colors.toml'), '--all'],
+    check=True, capture_output=True, text=True,
+)
+colors = dict(line.split('\t', 1) for line in resolved.stdout.splitlines())
+slots = ['background', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan',
+         'foreground', 'muted', 'bright_red', 'bright_green', 'bright_yellow',
+         'bright_blue', 'bright_magenta', 'bright_cyan', 'bright_foreground']
+palette = [colors[key] for key in slots]
+terminal = {'background': colors['background'], 'foreground': colors['foreground'],
+            'selection': colors['selection_background'], 'cursor': colors['cursor']}
+
+# Handwritten terminal palettes can differ from semantic desktop colors (the
+# Mac's ANSI black/white and orange cursor, for example). Use the staged config.
+ghostty = theme / 'ghostty.conf'
+if ghostty.is_file():
+    text = ghostty.read_text()
+    for index, value in re.findall(r'^\s*palette\s*=\s*(\d+)\s*=\s*(#[a-fA-F0-9]{6})\s*$', text, re.M):
+        if 0 <= int(index) < 16:
+            palette[int(index)] = value
+    keys = {'background': 'background', 'foreground': 'foreground',
+            'selection-background': 'selection', 'cursor-color': 'cursor'}
+    for key, value in re.findall(r'^\s*(background|foreground|selection-background|cursor-color)\s*=\s*(#[a-fA-F0-9]{6})\s*$', text, re.M):
+        terminal[keys[key]] = value
+
+ui = {
+    'canvas': colors['darker_background'], 'chrome': colors['dark_background'],
+    'surface': colors['lighter_background'], 'popover': colors['background'],
+    'raised': colors['lighter_background'], 'hover': colors['selection_background'],
+    'selected': colors['selection_background'], 'border': colors['lighter_background'],
+    'input': colors['muted'], 'foreground': colors['foreground'],
+    'muted': colors['dark_foreground'], 'dim': colors['muted'],
+    'accent': colors['accent'], 'accent_foreground': colors['background'],
+    'solid': colors['accent'], 'solid_foreground': colors['background'],
+    'selection': colors['selection_background'], 'working': colors['yellow'],
+    'blocked': colors['red'], 'done': colors['green'], 'idle': colors['muted'],
+    'unknown': colors['muted'],
+}
+result = {**terminal, 'ansi': palette, 'colors': ui}
+for value in [*terminal.values(), *palette, *ui.values()]:
+    if not re.fullmatch(r'#[a-fA-F0-9]{6}', value):
+        raise ValueError('Invalid Herdr theme color: ' + value)
+
+settings_path = app / 'settings.json'
+# Read and validate before making changes; don't replace a broken user config.
+settings = json.loads(settings_path.read_text()) if settings_path.exists() else {}
+settings['theme'] = 'omarchy'
+
+
+def write_json(path, value):
+    data = json.dumps(value, indent=2) + '\n'
+    if path.exists() and path.read_text() == data:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix='.' + path.name, dir=path.parent)
+    try:
+        with os.fdopen(fd, 'w') as stream:
+            stream.write(data)
+        os.chmod(name, path.stat().st_mode & 0o777 if path.exists() else 0o644)
+        os.replace(name, path)
+    finally:
+        if os.path.exists(name):
+            os.unlink(name)
+
+
+# Write the palette before selecting it. Both files hot-reload in Herdr.
+write_json(app / 'themes/omarchy.json', result)
+write_json(settings_path, settings)
+# A picker selection wins over settings. Use the supported command to update
+# the running layout, leaving Herdr's internal layout state to Herdr itself.
+if (app / 'herdr-app.sock').exists() and shutil.which('herdr-app'):
+    subprocess.run(['herdr-app', 'do', 'app.theme', '--name', 'omarchy'],
+                   check=True, timeout=5, stdout=subprocess.DEVNULL)
+HERDR_PY

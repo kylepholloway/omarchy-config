@@ -1,66 +1,107 @@
-#!/bin/bash
-# ════════════════════════════════════════════════════════════════════
-#  Archway takeover — scoped to the Archway theme.
-#
-#  A few things Omarchy themes cannot reach on their own live outside
-#  the theme directory and would otherwise persist after switching away:
-#  the screensaver and About branding, the fastfetch logo colour, the
-#  starship prompt, and lazygit. This hook installs them when Archway is
-#  selected and restores Omarchy's own defaults for every other theme.
-#
-#  Where possible it DERIVES from Omarchy's current default rather than
-#  shipping a fork, so upstream changes still flow through.
-#
-#  Not handled here on purpose: the Plymouth boot screen and the SDDM
-#  login screen. Those live in /usr/share, need sudo, and rebuild the
-#  initramfs — far too heavy to run on every theme switch. Set them once
-#  with `omarchy plymouth set by theme archway`, undo with
-#  `omarchy plymouth reset`.
-# ════════════════════════════════════════════════════════════════════
-set -u
+#!/usr/bin/env bash
+# Omarchy invokes hooks through bash; Python handles atomic backups and restoration.
+exec python3 - "$@" <<'ARCHWAY_PY'
+"""Scope Archway branding to this theme, preserving the user's previous files."""
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import sys
+import tempfile
 
-THEME="${1:-}"
-OMARCHY="${OMARCHY_PATH:-/usr/share/omarchy}"
-THEME_DIR="$HOME/.config/omarchy/themes/archway"
-TAKEOVER="$THEME_DIR/takeover"
-BRANDING="$HOME/.config/omarchy/branding"
-FASTFETCH_SYS="/etc/fastfetch/config.jsonc"
-FASTFETCH_USER="$HOME/.config/fastfetch/config.jsonc"
-STARSHIP="$HOME/.config/starship.toml"
-LAZYGIT="$HOME/.config/lazygit/config.yml"
+home = Path.home()
+state = home / '.local/state/omarchy/archway-takeover'
+state.mkdir(parents=True, exist_ok=True)
+lock = (state / 'lock').open('w')
+fcntl.flock(lock, fcntl.LOCK_EX)
+requested = sys.argv[1] if len(sys.argv) > 1 else ''
+current = home / '.local/state/omarchy/current/theme.name'
+# Deferred hooks from a previous selection must not alter the current theme.
+if not requested or not current.exists() or current.read_text().strip() != requested:
+    sys.exit(0)
 
-install_file() { [[ -f $1 ]] && { mkdir -p "$(dirname "$2")"; cp "$1" "$2"; }; }
+manifest = state / 'manifest.json'
+records = json.loads(manifest.read_text()) if manifest.exists() else {}
 
-if [[ $THEME == "archway" ]]; then
-  install_file "$TAKEOVER/screensaver.txt" "$BRANDING/screensaver.txt"
-  install_file "$TAKEOVER/about.txt"       "$BRANDING/about.txt"
-  install_file "$TAKEOVER/lazygit.yml"     "$LAZYGIT"
 
-  # fastfetch: the logo is the Archway mark, so it takes the accent. The three
-  # module sections keep their own colours — they already resolve through the
-  # Archway palette, and an accent used everywhere means nothing. Derived from
-  # the system config so upstream edits still land.
-  if [[ -f $FASTFETCH_SYS ]]; then
-    mkdir -p "$(dirname "$FASTFETCH_USER")"
-    sed '0,/"color": *{ *"1": *"green" *}/s//"color": { "1": "blue" }/' \
-      "$FASTFETCH_SYS" >"$FASTFETCH_USER"
-  fi
+def save_manifest():
+    temporary = state / 'manifest.next'
+    temporary.write_text(json.dumps(records, indent=2) + '\n')
+    temporary.replace(manifest)
 
-  # starship: Omarchy's default is cyan throughout. Accent marks identity —
-  # the prompt character, the repo root, the branch. The error symbol takes
-  # crit red instead, because status colours follow convention, not the accent.
-  if [[ -f $OMARCHY/config/starship.toml ]]; then
-    sed -e 's/\[✗\](bold cyan)/[✗](bold red)/' \
-        -e 's/\bcyan\b/blue/g' \
-        "$OMARCHY/config/starship.toml" >"$STARSHIP"
-  fi
-else
-  # Hand everything back to Omarchy.
-  install_file "$OMARCHY/logo.txt" "$BRANDING/screensaver.txt"
-  install_file "$OMARCHY/icon.txt" "$BRANDING/about.txt"
-  install_file "$OMARCHY/config/starship.toml" "$STARSHIP"
-  rm -f "$FASTFETCH_USER"                       # fall back to /etc
-  [[ -f $LAZYGIT ]] && : >"$LAZYGIT"            # Omarchy ships this empty
-fi
 
-exit 0
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+
+
+def write_atomic(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix='.' + path.name, dir=path.parent)
+    try:
+        with os.fdopen(fd, 'wb') as stream:
+            stream.write(data)
+        os.chmod(name, path.stat().st_mode & 0o777 if path.is_file() else 0o644)
+        os.replace(name, path)
+    finally:
+        if os.path.exists(name):
+            os.unlink(name)
+
+
+def install(relative, data):
+    path = home / '.config' / relative
+    if relative not in records:
+        backup = state / 'originals' / relative
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        existed = path.exists() or path.is_symlink()
+        if existed:
+            shutil.copy2(path, backup, follow_symlinks=False)
+        records[relative] = {'existed': existed, 'installed': None}
+    elif path.is_symlink() or records[relative]['installed'] != digest(path):
+        # A file edited during Archway belongs to the user now.
+        return
+    records[relative]['installed'] = hashlib.sha256(data).hexdigest()
+    save_manifest()  # Persist restore information before touching the config.
+    write_atomic(path, data)
+
+
+if requested == 'archway':
+    assets = home / '.config/omarchy/themes/archway/takeover'
+    for name in ('screensaver.txt', 'about.txt'):
+        source = assets / name
+        if source.is_file():
+            install('omarchy/branding/' + name, source.read_bytes())
+    source = assets / 'lazygit.yml'
+    if source.is_file():
+        install('lazygit/config.yml', source.read_bytes())
+    fastfetch = Path('/etc/fastfetch/config.jsonc')
+    if fastfetch.is_file():
+        text = fastfetch.read_text().replace('"1": "green"', '"1": "blue"', 1)
+        install('fastfetch/config.jsonc', text.encode())
+    # Derive from the saved user prompt, retaining their format and modules.
+    prompt = 'starship.toml'
+    original = state / 'originals' / prompt
+    source = original if prompt in records and records[prompt]['existed'] else home / '.config' / prompt
+    if source.is_file():
+        text = source.read_text().replace('[✗](bold cyan)', '[✗](bold red)').replace('cyan', 'blue')
+        install(prompt, text.encode())
+else:
+    for relative, record in records.items():
+        path = home / '.config' / relative
+        # Restore only what this hook last wrote. Keep edits made while themed.
+        if digest(path) != record['installed'] or path.is_symlink():
+            continue
+        if record['existed']:
+            original = state / 'originals' / relative
+            if original.is_symlink():
+                path.unlink()
+                path.symlink_to(os.readlink(original))
+            else:
+                write_atomic(path, original.read_bytes())
+        else:
+            path.unlink(missing_ok=True)
+    if records:
+        manifest.unlink()
+        shutil.rmtree(state / 'originals')
+ARCHWAY_PY

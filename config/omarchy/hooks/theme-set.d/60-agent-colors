@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+# Palette-backed prompt colors remain live across future terminal theme changes.
+exec python3 - "$@" <<'AGENT_COLORS_PY'
+import json
+import os
+from pathlib import Path
+import plistlib
+import re
+import sys
+import tempfile
+import tomllib
+
+home = Path.home()
+current = home / '.local/state/omarchy/current/theme.name'
+requested = sys.argv[1] if len(sys.argv) > 1 else ''
+if not requested or not current.is_file() or current.read_text().strip() != requested:
+    sys.exit(0)
+
+
+def write(path, data):
+    if path.exists() and path.read_bytes() == data:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix='.' + path.name, dir=path.parent)
+    try:
+        with os.fdopen(fd, 'wb') as stream:
+            stream.write(data)
+        os.chmod(name, path.stat().st_mode & 0o777 if path.exists() else 0o644)
+        os.replace(name, path)
+    finally:
+        if os.path.exists(name):
+            os.unlink(name)
+
+
+def codex_config(text):
+    before = tomllib.loads(text)
+    lines = text.splitlines(keepends=True)
+    start = next((i for i, line in enumerate(lines)
+                  if re.match(r'''^[ \t]*\[[ \t]*(?:tui|"tui"|'tui')[ \t]*\][ \t]*(?:#.*)?$''', line.rstrip('\n'))), None)
+    if start is None:
+        updated = text.rstrip() + '\n\n[tui]\ntheme = "omarchy"\n'
+    else:
+        end = next((i for i in range(start + 1, len(lines)) if re.match(r'^[ \t]*\[', lines[i])), len(lines))
+        index = next((i for i in range(start + 1, end)
+                      if re.match(r'''^[ \t]*(?:theme|"theme"|'theme')[ \t]*=''', lines[i])), None)
+        if index is None:
+            lines.insert(start + 1, 'theme = "omarchy"\n')
+        else:
+            lines[index] = 'theme = "omarchy"\n'
+        updated = ''.join(lines)
+    expected = {**before, 'tui': {**before.get('tui', {}), 'theme': 'omarchy'}}
+    if tomllib.loads(updated) != expected:
+        raise ValueError('Codex settings changed beyond tui.theme')
+    return updated.encode()
+
+
+# Validate both inputs before writing either one. Leave auth, permissions,
+# plugins and all non-color preferences alone.
+claude = Path(os.environ.get('CLAUDE_CONFIG_DIR', home / '.claude')) / 'settings.json'
+claude_data = None
+if claude.is_file():
+    settings = json.loads(claude.read_text())
+    plugin = settings.get('pluginConfigs', {}).get('prismantis@prismantis')
+    if plugin is not None:
+        options = plugin.setdefault('options', {})
+        # Prismantis resolves ANSI names at draw time through the terminal.
+        # Slot 4 is Signal blue on Archway and the Mac's cyan on Banana Blueberry.
+        options.update(promptBorderColor='blue', promptTextColor='white', promptFillColor='black')
+        claude_data = (json.dumps(settings, indent=2) + '\n').encode()
+
+codex = Path(os.environ.get('CODEX_HOME', home / '.codex'))
+config = codex / 'config.toml'
+codex_data = codex_config(config.read_text()) if config.is_file() else None
+
+# Codex's syntect adapter follows bat's ANSI marker encoding: the red byte
+# carries the palette index when alpha is 00; alpha 01 means terminal default.
+def ansi(index):
+    return f'#{index:02x}000000'
+
+
+rules = [
+    {'settings': {'foreground': '#00000001', 'background': '#00000001'}},
+]
+
+
+def scope(name, index, style=None, background=None):
+    settings = {'foreground': ansi(index)}
+    if style:
+        settings['fontStyle'] = style
+    if background:
+        settings['background'] = background
+    rules.append({'scope': name, 'settings': settings})
+
+
+scope('comment, punctuation.definition.comment', 8)
+scope('keyword, storage, storage.type, storage.modifier', 5)
+scope('string, constant.character', 2)
+scope('constant.numeric, constant.language, constant.other.symbol', 3)
+scope('entity.name.function, support.function', 4)
+scope('entity.name.type, entity.name.class, support.type, support.class', 6)
+scope('entity.name.tag, entity.other.attribute-name', 6)
+scope('variable.parameter', 3)
+scope('string.regexp', 6)
+scope('invalid', 1)
+scope('codex.accent', 4, 'bold')
+scope('markup.heading', 4, 'bold')
+scope('markup.bold', 15, 'bold')
+scope('markup.italic', 5, 'italic')
+scope('markup.quote', 8)
+scope('markup.list', 4)
+scope('markup.underline.link', 4, 'underline')
+scope('markup.inline.raw.string.markdown, markup.raw.inline.markdown', 3)
+scope('markup.inserted, diff.inserted', 2, background='#00000001')
+scope('markup.deleted, diff.deleted', 1, background='#00000001')
+theme_data = plistlib.dumps({'name': 'omarchy', 'settings': rules}, sort_keys=False)
+
+if claude_data is not None:
+    write(claude, claude_data)
+if codex_data is not None:
+    write(codex / 'themes/omarchy.tmTheme', theme_data)
+    write(config, codex_data)
+AGENT_COLORS_PY
