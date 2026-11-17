@@ -80,3 +80,17 @@ update rewrites `hyprland-mimeapps.list`, re-link it from the repo.
 - **Omarchy's Chrome theme:** the policy folder is a symlink so Omarchy's theme changes
   don't override the brand colors. If Chrome turns one color again after an Omarchy
   update, re-run `setup-comms.sh`.
+
+## Webcam: Sony A7 IV
+
+The A7 IV streams as a standard UVC webcam (`ILCE-7M4`, `/dev/video6`, 1080p30 NV12/MJPG);
+no driver or software needed. Camera: MENU → Setup → USB → USB Connection Mode →
+**USB Streaming**, USB Power Supply → On.
+
+**Plug it into a Studio Display's rear USB-C port, never the CalDigit TS5 Plus.** The
+dock's "Hub B/C" ports run on an ASMedia ASM2142 controller that crashed ("xHCI host
+controller not responding, assume dead") when the camera switched modes on November 17,
+2026, freezing the desktop and dropping the Scarlett 4i4 on the same hub. Recover without
+recabling by resetting that controller:
+
+    pkexec sh -c 'echo 0000:03:00.0 > /sys/bus/pci/drivers/xhci_hcd/unbind; sleep 2; echo 0000:03:00.0 > /sys/bus/pci/drivers/xhci_hcd/bind'
