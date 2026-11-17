@@ -124,14 +124,13 @@ and `/etc/modprobe.d/v4l2loopback.conf`; `system/udev/90-a7-studio.rules` to
 
 ### Camera look (saved to mode dial 3, November 17, 2026)
 
-Tuned on screen with `a7-grade`, then moved into the camera so the feed needs no
-software grade (pipeline in repack mode, `a7-grade reset`).
+Tuned in Zoom/Meet on the raw camera (no virtual camera); updated November 17, 2026, 10:19.
 
 | Setting | Value |
 |---|---|
 | Mode | Manual exposure, ISO AUTO (range 100–6400), 1/60, f/2.8 |
 | Metering | Multi, Face Priority in Multi Metering on |
-| Creative Look | NT: Contrast +1, Highlights −2, Shadows +1, Fade +1, Saturation +1, Sharpness 0, Clarity 0 (can't go below 0) |
+| Creative Look | NT: Contrast 0, Highlights −2, Shadows +2, Fade +3, Saturation 0, Sharpness 0, Clarity 0 (can't go below 0). Pre-compensates Chrome's contrast boost on the raw camera |
 | White Balance | Auto, shifted A2 / G1 (warm, magenta out of skin; G2 tinted whites green), Shockless WB on |
 | Focus | AF-C, Wide, Face/Eye priority on (Human, eye Auto), AF Transition Speed 3, Subj. Shift Sensitivity 3 |
 | Other | Picture Profile off (disabled while USB streaming anyway), SteadyShot off, Audio Recording off |
