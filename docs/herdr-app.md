@@ -20,6 +20,9 @@ project's coding agents as cards. It replaces Herdr's separate Agents panel.
   counts, showing the program icon, the agent's title, time since its status last changed,
   and its status. Click a card to go to that pane. The project row shows the same counts
   on the right.
+- **Home tabs**: every project's first tab is a `project-home` mod pane (logo, name, folder,
+  agent counts, New Claude Code, New terminal, Open in Paperclip). A mod pane never exits, so
+  the project stays when all its terminals close. Close the Home tab to let a project go.
 - **Paperclip links**: Holloway Network (HOL), Archway (ARC) and Rockefeller (ROC) have a
   line that opens that company's issues. Link only on purpose; live counts would need
   server-side keys (closed holloway-network PR #203 has that design).
@@ -29,6 +32,7 @@ project's coding agents as cards. It replaces Herdr's separate Agents panel.
 | Repo path | Live path | How |
 |---|---|---|
 | `config/herdr-app/mods/my-spaces/` | `~/.config/herdr-app/mods/my-spaces` | copy (see below) |
+| `config/herdr-app/mods/project-home/` | `~/.config/herdr-app/mods/project-home` | copy |
 | `config/herdr-app/layouts/brands.json` | `~/.config/herdr-app/layouts/brands.json` | copy (Herdr rewrites it) |
 
 - `mods/my-spaces/brands.js` is the one place to edit: each brand's name, logo, color,
@@ -36,7 +40,8 @@ project's coding agents as cards. It replaces Herdr's separate Agents panel.
 - `mods/my-spaces/brands/*.png` are 72px rounded tiles, made with `rsvg-convert` and
   ImageMagick from each repo's own favicon or logo (Nessi's is the "n" cut from its
   wordmark, white on its primary-400 green; Rockefeller's is the public website's favicon;
-  Omarchy's is the system icon).
+  Omarchy's is the bold O from its wordmark: the system icon's thin pixel lines broke up at
+  sidebar size).
 - Herdr writes `gpui-kit.d.ts` and `jsconfig.json` into every mod folder on start; they are
   git-ignored.
 - **Both are copies, not symlinks.** Herdr's hot reload does not see edits made through a
@@ -56,9 +61,22 @@ cp ~/.config/herdr-app/layouts/brands.json ~/Work/Personal/omarchy-config/config
 ```sh
 rsync -a ~/Work/Personal/omarchy-config/config/herdr-app/mods/my-spaces/ ~/.config/herdr-app/mods/my-spaces/
 cp ~/Work/Personal/omarchy-config/config/herdr-app/layouts/brands.json ~/.config/herdr-app/layouts/
+rsync -a ~/Work/Personal/omarchy-config/config/herdr-app/mods/project-home/ ~/.config/herdr-app/mods/project-home/
 herdr-app check ~/.config/herdr-app/mods/my-spaces
+herdr-app check ~/.config/herdr-app/mods/project-home
 herdr-app do layout.switch --name brands
 ```
+
+Spaces and tabs live in herdr-core, not in files. To give a project its Home tab again
+(space id from `herdr-app ls`, folder is the project's):
+
+```sh
+herdr-app do tab.new '{"space":"<space id>","name":"Home","mod":"project-home","props":{"space":"<space id>","folder":"/home/kyle/Work/Archway"},"focus":false}'
+herdr-app do tab.move '{"id":"<tab id it printed>","index":0}'
+```
+
+Write a new mod's `mod.json` (`{"place": "none"}`) before or with its `main.js`: the first
+time Herdr sees a mod folder without one, it docks a copy into the shown layout.
 
 `ctrl-shift-l` cycles back to Herdr's own `main` layout; `ctrl-alt-shift-escape` always
 resets to it.

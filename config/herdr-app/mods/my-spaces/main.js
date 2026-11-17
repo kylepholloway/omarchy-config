@@ -665,10 +665,11 @@ export default class Spaces extends View {
       changed = true;
     }
     if (changed) setShared("space.colors", kept);
-    // Tell other mods (my-agents) which logo each space shows.
     const ps = panes();
-    const logos = Object.fromEntries(sp.map((p) => [p.id, brandFor(p.name, place(p, ps))]).filter(([, b]) => b?.logo).map(([id, b]) => [id, logoPath(b)]));
-    if (JSON.stringify(logos) !== JSON.stringify(shared("brand.logos") ?? {})) setShared("brand.logos", logos);
+    // Each space's brand for other mods (project-home), which can't import brands.js.
+    const info = Object.fromEntries(sp.map((p) => [p.id, brandFor(p.name, place(p, ps))]).filter(([, b]) => b)
+      .map(([id, b]) => [id, { name: b.name, logo: b.logo ? logoPath(b) : null, color: b.color ?? null, paperclip: b.paperclip ?? null }]));
+    if (JSON.stringify(info) !== JSON.stringify(shared("brand.info") ?? {})) setShared("brand.info", info);
     const list = this.grouped(t, collapsed);
     // Bring the active space into view when it, or its place in the list, changes; a row already in view stays put.
     const active = sp.find(p => p.active)?.id;
