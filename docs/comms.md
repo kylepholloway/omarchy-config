@@ -147,3 +147,25 @@ visible lag in Zoom and shifted colors compared with the raw camera. Zoom, Meet 
 camera** instead: pick **ILCE-7M4** in every app. `a7-studio.service` is switched off by
 `config/systemd/user/a7-studio.service.d/off.conf` (it only runs if
 `~/.config/a7-studio/enabled` exists); the scripts stay for experiments.
+
+## Audio and Discord
+
+- **Default microphone: Scarlett 4i4** (set November 17, 2026; the Studio Display mic had
+  been the default). Kept by WirePlumber, not a file in this repo; on a new machine:
+  `pactl set-default-source alsa_input.usb-Focusrite_Scarlett_4i4_USB_<serial>-00.analog-surround-21`
+  (find the name with `pactl list short sources`). Speakers default to the Scarlett too.
+- **Discord: official desktop app** (`discord`, Arch extra; runs native Wayland). Replaced
+  Omarchy's Discord web app on November 17, 2026: voice with voice activity, occasional
+  RuneLite screen share without audio. Vesktop is the fallback if screen sharing breaks.
+
+## Meeting links (summary)
+
+| Start | Behavior |
+|---|---|
+| OmaCal Join / bar widget, meeting on a calendar | Opens directly in that calendar's profile |
+| Start Meeting (Super + Ctrl + M) | Pick account once; its single-use hint answers Zoom's zoommtg:// hand-off |
+| Zoom/Meet/Teams link on no calendar (Slack, email) | Account picker |
+| Any other link from outside Chrome | Personal profile |
+
+Packages for the (now disabled) virtual camera stay installed and listed in
+`packages/repo.txt`: dkms, v4l2loopback-dkms, v4l2loopback-utils, gst-plugins-good/base.
