@@ -30,3 +30,7 @@ require("default.hypr.toggles")
 
 -- Chrome profile border colors
 require("hypr.chrome-profiles")
+
+-- Don't let Chrome pull focus when it asks to be activated (e.g. Claude's
+-- Chrome extension clicking or opening tabs while you type elsewhere).
+o.window("google-chrome", { suppress_event = "maximize activate activatefocus" })
