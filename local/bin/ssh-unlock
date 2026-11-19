@@ -10,6 +10,10 @@ loaded && exit 0
 if [[ ${1:-} == --prompt ]]; then
   echo "Unlock your SSH key for this session (homelab, GitHub over SSH, agents)."
   until ssh-add "$key"; do echo "Try again, or Ctrl-C to skip."; done
+  # The signing check above makes gcr start its own ssh-add for the locked key,
+  # which never exits and wakes ~450 times a second. End it once the key is in.
+  agent=$(pgrep -u "$USER" -x gcr-ssh-agent | head -1)
+  [[ -n $agent ]] && pkill -P "$agent" -x ssh-add
   exit 0
 fi
 exec omarchy-launch-floating-terminal-with-presentation "$0 --prompt"
