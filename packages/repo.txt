@@ -15,13 +15,11 @@ bolt
 brightnessctl
 btop
 btrfs-progs
-cliamp
 cups
 cups-filters
 cups-pk-helper
 ddcutil
 discord
-disktree-bin
 dkms
 docker
 docker-buildx
@@ -29,20 +27,14 @@ docker-compose
 dosfstools
 dotnet-runtime
 efibootmgr
-evince
 exfatprogs
 expac
 eza
 fakeroot
 fastfetch
 fcitx5
-fcitx5-chewing
-fcitx5-chinese-addons
 fcitx5-gtk
-fcitx5-hangul
-fcitx5-mozc
 fcitx5-qt
-fcitx5-table-extra
 fd
 ffmpeg
 ffmpegthumbnailer
@@ -52,7 +44,6 @@ fprintd
 fzf
 ghostty
 git
-gliff
 gnome-disk-utility
 gnome-keyring
 gnome-themes-extra
@@ -66,7 +57,6 @@ gum
 gvfs-mtp
 gvfs-nfs
 gvfs-smb
-hype
 hyprland
 hyprland-guiutils
 hyprland-preview-share-picker
@@ -87,7 +77,6 @@ lazygit
 less
 libfprint-git
 libpulse
-libreoffice-fresh
 libsecret
 libvips
 libyaml
@@ -102,7 +91,6 @@ man-db
 mariadb-libs
 mise-bin
 mkinitcpio
-monologue
 mpv
 mpv-mpris
 nautilus
@@ -114,7 +102,6 @@ noto-fonts-cjk
 noto-fonts-emoji
 nss-mdns
 omacalc
-omacut
 omarchy
 omarchy-hyprland-titlebars
 omarchy-keyring
@@ -122,7 +109,6 @@ omarchy-nvim
 omarchy-power-profiles-daemon
 omarchy-settings
 omasnap
-omawrite
 openssh
 owe
 pacman-contrib

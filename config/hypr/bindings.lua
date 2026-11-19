@@ -88,3 +88,12 @@ end
 
 o.rebind("SUPER + C", "Universal copy", kyle_clipboard("C"))
 o.rebind("SUPER + V", "Universal paste", kyle_clipboard("V"))
+
+-- Stock app keys for apps removed on Nov 19, 2026: point Music at Sidra and
+-- Passwords at the Bitwarden Chrome app; drop the rest.
+o.rebind("SUPER + SHIFT + M", "Music (Sidra)", { launch = "sidra", focus = "^[Ss]idra$" })
+o.rebind("SUPER + SHIFT + SLASH", "Passwords (Bitwarden)", '/opt/google/chrome/google-chrome "--profile-directory=Profile 3" --app-id=gneipglanmgpdhiohiogfnhdpoaafoob')
+hl.unbind("SUPER + SHIFT + ALT + M")
+hl.unbind("SUPER + SHIFT + G")
+hl.unbind("SUPER + SHIFT + O")
+hl.unbind("SUPER + SHIFT + W")
