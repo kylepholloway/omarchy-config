@@ -1,7 +1,7 @@
 # omarchy-config
 
 <!-- LAST-UPDATED -->
-**Last captured:** 2026-11-19 09:34 MST
+**Last captured:** 2026-11-19 09:43 MST
 
 My [Omarchy](https://omarchy.org/) configuration — everything on this machine that
 differs from a stock Omarchy install.
@@ -68,6 +68,10 @@ Run `python scripts/verify-herdr-theme-sync.py` for isolated bridge checks.
 
 Herdr's **Brands** layout (Projects sidebar with company logos, brand colors and
 agent cards) lives in `config/herdr-app/`; see [docs/herdr-app.md](docs/herdr-app.md).
+
+Apple Music is [Sidra](https://github.com/wimpysworld/sidra) (`sidra-bin`, AUR), a native
+client with Widevine. Omarchy's built-in Media bar widget (`omarchy.media`) shows and controls
+it over MPRIS, so no Chromium is needed. Sign in to Apple Music inside Sidra once.
 
 Old School RuneScape (Bolt, RuneLite, the synced profile, and the QMK macropad
 keymap) is covered in [docs/osrs.md](docs/osrs.md).

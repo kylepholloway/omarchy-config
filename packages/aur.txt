@@ -3,3 +3,4 @@ netbird-bin
 ngrok
 omacal-bin
 runelite
+sidra-bin
