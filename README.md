@@ -144,8 +144,6 @@ Personal, Rockefeller); `config/user-dirs.dirs` points `XDG_PROJECTS_DIR` there.
 - `local/bin/ssh-unlock` + `config/hypr/autostart.lua` — asks for the SSH key
   passphrase once per login; nothing is stored on disk.
 - `system/docker/daemon.json` — copy to `/etc/docker/daemon.json` (not linked).
-  `dns-search: ["."]` stops containers inheriting NetBird's `holloway.network`
-  search domain, which sent Supabase's internal names to the homelab's Traefik.
 
 Manual steps after `install.sh`: sign in to `gh`, Doppler, Supabase, Vercel and
 ngrok (`ngrok config add-authtoken`), restore `~/.ssh` (keys + host list), clone
