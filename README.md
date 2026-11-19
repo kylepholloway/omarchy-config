@@ -85,7 +85,7 @@ validate the integrations in a temporary home.
 
 ## Staying in sync
 
-Three layers, so nothing gets missed when you change things on the fly:
+Two layers, so nothing gets missed when you change things on the fly:
 
 **1. Symlinks — automatic.** `install.sh` symlinks rather than copies, so editing
 `~/.config/hypr/bindings.lua` *is* editing this repo. No copying step, no forgetting.
@@ -98,10 +98,6 @@ config files you customized but never added to the repo.
 ```bash
 ./scripts/check.sh          # exit 0 = in sync, 1 = drift
 ```
-
-**3. Boot notification — the reminder.** `config/omarchy/hooks/post-boot.d/omarchy-config-drift`
-runs the check at every boot and sends a desktop notification *only* if there's drift.
-Click it to see what changed. Silent when clean.
 
 ### When you've changed something
 
@@ -164,8 +160,6 @@ Restoring these is manual, by design:
 ## Notes
 
 - Third-party Omarchy plugins are cloned from their upstream git URLs, so they update
-  independently via `omarchy plugin update`. The customized `kph.tray` plugin is
-  vendored under `config/omarchy/plugins/` because it is a local clone of Omarchy's
-  built-in tray rather than a standalone upstream repository.
+  independently via `omarchy plugin update`.
 - `omarchy install preinstalls` restores the stock Omarchy app set if you ever want the
   removed defaults back.
