@@ -1,0 +1,11 @@
+#!/bin/bash
+# Launch Bolt (and the RuneLite it starts) with Java UI scaling that matches
+# the displays. RuneLite is an X11 Java app, so Hyprland's per-monitor scale
+# never reaches it; Java reads GDK_SCALE instead. Docked on the Studio
+# Displays: 2x. Laptop screen only: 1x. Decided when Bolt starts.
+if hyprctl monitors 2>/dev/null | grep -q "StudioDisplay"; then
+  export GDK_SCALE=2
+else
+  export GDK_SCALE=1
+fi
+exec /usr/bin/bolt "$@"

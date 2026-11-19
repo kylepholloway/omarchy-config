@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+Name=Bolt
+GenericName=Bolt Launcher
+Comment=Third-party Jagex launcher
+Keywords=games;
+Exec=/home/kyle/.local/bin/bolt-scaled
+Icon=bolt-launcher
+Categories=Game;
+StartupWMClass=bolt-launcher
