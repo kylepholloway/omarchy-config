@@ -1,0 +1,9 @@
+[tools]
+"npm:vercel" = { version = "latest", trust_policy_excludes = ["@vercel/cli-exec", "@vercel/gatsby-plugin-vercel-builder", "@vercel/gatsby-plugin-vercel-analytics", "@vercel/error-utils", "@vercel/cervel", "@vercel/oidc", "@vercel/static-config", "@vercel/static-build", "@vercel/rust", "@vercel/ruby", "@vercel/remix-builder", "@vercel/redwood", "@vercel/python-analysis", "@vercel/python", "@vercel/node", "@vercel/next", "@vercel/nestjs", "@vercel/koa", "@vercel/hydrogen", "@vercel/hono", "@vercel/h3", "@vercel/go", "@vercel/fastify", "@vercel/express", "@vercel/elysia", "@vercel/detect-agent", "@vercel/container", "@vercel/cli-config", "@vercel/cli-auth", "@vercel/build-utils", "@vercel/backends", "vercel", "@vercel/vc-native-darwin-arm64","@vercel/vc-native-darwin-x64","@vercel/vc-native-linux-arm64","@vercel/vc-native-linux-arm64-musl","@vercel/vc-native-linux-x64","@vercel/vc-native-linux-x64-musl","@vercel/vc-native-win32-arm64","@vercel/vc-native-win32-x64"] }  # Vercel CLI releases since 65.2 (Oct 2026) ship without npm provenance; scoped to Vercel's own packages
+doppler = "latest"
+pnpm = "10"
+supabase = "3"
+temporal = "latest"
+
+[env]
+SHARP_IGNORE_GLOBAL_LIBVIPS = "1"  # system libvips (Omarchy) makes sharp try a source build; use its prebuilt

@@ -1,7 +1,5 @@
-bluemail
 bolt-launcher
-flyline
+netbird-bin
+ngrok
 omacal-bin
 runelite
-slack-desktop
-zoom

@@ -18,7 +18,7 @@ for arg in "$@"; do
       cat <<'USAGE'
 usage: ./install.sh [machine-name] [--no-packages] [--no-plugins]
 
-  machine-name    dir under machines/ to apply (e.g. dell-latitude).
+  machine-name    dir under machines/ to apply (none today; see machines/).
                   Omit to skip machine-specific config (monitors, etc).
   --no-packages   skip installing packages from packages/
   --no-plugins    skip cloning omarchy shell plugins

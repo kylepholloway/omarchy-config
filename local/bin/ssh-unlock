@@ -1,0 +1,15 @@
+#!/bin/bash
+# Ask once per login for the SSH key passphrase and load the key into Omarchy's
+# gcr SSH agent. The passphrase is never stored; the key stays loaded until logout.
+export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$XDG_RUNTIME_DIR/gcr/ssh}"
+key="$HOME/.ssh/id_rsa"
+# gcr's agent lists ~/.ssh public keys even while locked, so ask it to sign instead.
+loaded() { timeout 3 ssh-add -T "$key.pub" >/dev/null 2>&1; }
+loaded && exit 0
+
+if [[ ${1:-} == --prompt ]]; then
+  echo "Unlock your SSH key for this session (homelab, GitHub over SSH, agents)."
+  until ssh-add "$key"; do echo "Try again, or Ctrl-C to skip."; done
+  exit 0
+fi
+exec omarchy-launch-floating-terminal-with-presentation "$0 --prompt"

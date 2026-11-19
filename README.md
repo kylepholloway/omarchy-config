@@ -1,7 +1,7 @@
 # omarchy-config
 
 <!-- LAST-UPDATED -->
-**Last captured:** 2026-08-31 11:00 MDT
+**Last captured:** 2026-11-19 09:34 MST
 
 My [Omarchy](https://omarchy.org/) configuration — everything on this machine that
 differs from a stock Omarchy install.
@@ -14,9 +14,9 @@ layer, so it stays small and survives Omarchy upgrades cleanly.
 
 ```bash
 # 1. Install Omarchy normally, then:
-git clone <this-repo> ~/Work/omarchy-config
-cd ~/Work/omarchy-config
-./install.sh <machine-name>          # e.g. ./install.sh dell-latitude
+git clone https://github.com/kylepholloway/omarchy-config ~/Work/Personal/omarchy-config
+cd ~/Work/Personal/omarchy-config
+./install.sh
 
 omarchy restart shell
 hyprctl reload
@@ -106,7 +106,7 @@ Click it to see what changed. Silent when clean.
 ### When you've changed something
 
 ```bash
-cd ~/Work/omarchy-config
+cd ~/Work/Personal/omarchy-config
 ./scripts/capture.sh        # refresh package/plugin lists + README stamp
 git add -A && git commit -m "..." && git push
 ```
@@ -125,23 +125,40 @@ saved user configuration. The hook restores your previous files on exit.
 
 ## Machine-specific config
 
-`hypr/monitors.lua` is the one file that genuinely does not transfer — it is tuned to a
-specific panel and display layout. It lives under `machines/` and is applied only when
-you pass a machine name.
+`config/hypr/monitors.lua` is shared: it scales the laptop panel at 1x and the
+Apple Studio Displays at 2x, matched per display, so it carries to the next
+laptop. `machines/<name>/` still works for anything that truly can't transfer
+(`./install.sh <name>`); there are no machines in it today. Captured from the
+Dell Inspiron 16 7620 (Nov 2026).
 
-Current machines:
+## Dev workstation
 
-- **dell-latitude** — Dell laptop, `eDP-1` + 2× Apple Studio Display (5120x2880 @ scale 2)
+Repos live in `~/Work/<Workstream>/` (Archway, Holloway Network, Nessi, SoCo,
+Personal, Rockefeller); `config/user-dirs.dirs` points `XDG_PROJECTS_DIR` there.
 
-To add one: `mkdir -p machines/<name>/hypr && cp ~/.config/hypr/monitors.lua machines/<name>/hypr/`
+- `config/mise/config.toml` — global toolchain (node, pnpm, supabase, vercel,
+  doppler, temporal, uv, gh). Repo pins go in git-excluded `mise.local.toml` files.
+- `config/ghostty/kyle.conf` — terminal preferences on top of Omarchy's config.
+- `config/environment.d/` — Omarchy's gcr SSH agent and Superwhisper's
+  accessibility setting for the session.
+- `local/bin/ssh-unlock` + `config/hypr/autostart.lua` — asks for the SSH key
+  passphrase once per login; nothing is stored on disk.
+- `system/docker/daemon.json` — copy to `/etc/docker/daemon.json` (not linked).
+  `dns-search: ["."]` stops containers inheriting NetBird's `holloway.network`
+  search domain, which sent Supabase's internal names to the homelab's Traefik.
+
+Manual steps after `install.sh`: sign in to `gh`, Doppler, Supabase, Vercel and
+ngrok (`ngrok config add-authtoken`), restore `~/.ssh` (keys + host list), clone
+the repos, then sign in to the Claude Code MCP servers (`/mcp`).
 
 ## What this repo deliberately does NOT contain
 
 Restoring these is manual, by design:
 
-- Browser profiles and session state (`~/.config/chromium` — ~300MB, contains auth tokens)
-- The Apple Music plugin's dedicated Chromium profile / Apple login
-- SSH keys, GPG keys, `gh` auth, gnome-keyring
+- Browser profiles and session state (`~/.config/google-chrome`, contains auth tokens)
+- SSH keys and `~/.ssh/config` (LAN host list — this repo is public), GPG keys, `gh` auth, gnome-keyring
+- `~/.config/link-router/profiles.conf` and `~/.config/a7-studio/` (private; see docs/comms.md)
+- CLI logins (Doppler, Supabase, Vercel, ngrok) and Claude Code / Codex config
 - Anything under `~/.local/share/` other than `.desktop` entries
 
 ## Notes
