@@ -9,5 +9,7 @@ x-scheme-handler/superwhisper=superwhisper-url.desktop
 x-scheme-handler/claude-cli=claude-code-url-handler.desktop
 x-scheme-handler/slack=slack.desktop
 x-scheme-handler/discord-409416265891971072=discord-409416265891971072.desktop
+x-scheme-handler/itms=sidra.desktop
 
 [Added Associations]
+x-scheme-handler/itms=sidra.desktop;
