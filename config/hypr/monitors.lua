@@ -4,8 +4,15 @@
 -- Monitor scale is Hyprland's scale for the output. It sizes everything
 -- Wayland-native, accepts fractions (1.6, 1.75), and applies immediately.
 -- "auto" lets Hyprland pick per display.
-local omarchy_monitor_scale = 1
+local omarchy_monitor_scale = "auto"
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = omarchy_monitor_scale })
+
+-- Per-display scales. Specific rules win over the catch-all above.
+-- Laptop panel (1920x1200): 100%.
+hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1 })
+-- Apple Studio Displays (5120x2880): 200%, the same "looks like 2560x1440" as macOS.
+hl.monitor({ output = "desc:Apple Computer Inc StudioDisplay 0x779F38EB", mode = "5120x2880@60", position = "auto", scale = 2 })
+hl.monitor({ output = "desc:Apple Computer Inc StudioDisplay 0xFA5B409C", mode = "5120x2880@60", position = "auto-right", scale = 2 })
 
 -- Configure a specific monitor.
 -- hl.monitor({ output = "DP-2", mode = "2560x1440@144", position = "0x0", scale = 1 })
