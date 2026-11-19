@@ -103,7 +103,6 @@ mariadb-libs
 mise-bin
 mkinitcpio
 monologue
-moonlight-qt
 mpv
 mpv-mpris
 nautilus
@@ -114,7 +113,6 @@ noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
 nss-mdns
-obsidian
 omacalc
 omacut
 omarchy
